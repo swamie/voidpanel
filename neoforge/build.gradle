@@ -39,7 +39,7 @@ neoForge {
 }
 
 processResources {
-	def props = [version: project.version, minecraft_version: project.minecraft_version, neo_version: project.neo_version]
+	def props = [version: project.version, minecraft_version_range: project.minecraft_version_range, neo_version: project.neo_version]
 	inputs.properties props
 	filesMatching("META-INF/neoforge.mods.toml") {
 		expand props

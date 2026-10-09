@@ -25,6 +25,6 @@ side = "BOTH"
 [[dependencies.voidpanel]]
 modId = "minecraft"
 type = "required"
-versionRange = "[${minecraft_version},26.4)"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
