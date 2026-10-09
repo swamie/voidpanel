@@ -10,7 +10,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
-import com.voidpanel.VoidPanel;
+import com.voidpanel.VoidPanelCommon;
 import com.voidpanel.config.Config;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData;
@@ -571,7 +571,7 @@ public final class Cmds {
 				((Map<String, ?>) f.get(d.getRoot())).remove(name);
 			}
 		} catch (ReflectiveOperationException e) {
-			VoidPanel.LOGGER.warn("Couldn't replace vanilla /{}; VoidPanel's version will merge with it", name, e);
+			VoidPanelCommon.LOGGER.warn("Couldn't replace vanilla /{}; VoidPanel's version will merge with it", name, e);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 package com.voidpanel.feature;
 
-import com.voidpanel.VoidPanel;
+import com.voidpanel.VoidPanelCommon;
 import com.voidpanel.util.ItemBuilder;
 import com.voidpanel.util.Msg;
 import com.voidpanel.util.Text;
@@ -64,7 +64,7 @@ public final class Invsee {
 			return;
 		}
 		SimpleContainer inv = new SimpleContainer(41);
-		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
+		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanelCommon.LOGGER)) {
 			ValueInput in = TagValueInput.create(reporter, server.registryAccess(), tag);
 			for (ItemStackWithSlot s : in.listOrEmpty("Inventory", ItemStackWithSlot.CODEC)) {
 				if (s.slot() >= 0 && s.slot() < 36) inv.setItem(s.slot(), s.stack());
@@ -100,7 +100,7 @@ public final class Invsee {
 			return;
 		}
 		SimpleContainer ender = new SimpleContainer(27);
-		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
+		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanelCommon.LOGGER)) {
 			ValueInput in = TagValueInput.create(reporter, server.registryAccess(), tag);
 			for (ItemStackWithSlot s : in.listOrEmpty("EnderItems", ItemStackWithSlot.CODEC)) {
 				if (s.slot() >= 0 && s.slot() < 27) ender.setItem(s.slot(), s.stack());
@@ -108,7 +108,7 @@ public final class Invsee {
 		}
 		Runnable onClose = () -> {
 			OFFLINE_SESSIONS.remove(target.id());
-			try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
+			try (var reporter = new ProblemReporter.ScopedCollector(VoidPanelCommon.LOGGER)) {
 				TagValueOutput out = TagValueOutput.createWithContext(reporter, server.registryAccess());
 				var list = out.list("EnderItems", ItemStackWithSlot.CODEC);
 				for (int i = 0; i < 27; i++) if (!ender.getItem(i).isEmpty()) list.add(new ItemStackWithSlot(i, ender.getItem(i)));
@@ -281,7 +281,7 @@ public final class Invsee {
 	}
 
 	private static void saveInventory(MinecraftServer server, NameAndId target, CompoundTag tag, SimpleContainer inv) {
-		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
+		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanelCommon.LOGGER)) {
 			ValueInput in = TagValueInput.create(reporter, server.registryAccess(), tag);
 			EntityEquipment eq = in.read("equipment", EntityEquipment.CODEC).orElseGet(EntityEquipment::new);
 			eq.set(EquipmentSlot.FEET, inv.getItem(36));
@@ -315,7 +315,7 @@ public final class Invsee {
 			NbtIo.writeCompressed(tag, tmp);
 			Util.safeReplaceFile(dir.resolve(target.id() + ".dat"), tmp, dir.resolve(target.id() + ".dat_old"));
 		} catch (Exception e) {
-			VoidPanel.LOGGER.error("Couldn't save offline data for {}", target.name(), e);
+			VoidPanelCommon.LOGGER.error("Couldn't save offline data for {}", target.name(), e);
 		}
 	}
 }

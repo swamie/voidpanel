@@ -1,6 +1,6 @@
 package com.voidpanel.util;
 
-import com.voidpanel.VoidPanel;
+import com.voidpanel.VoidPanelCommon;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,7 +50,7 @@ public final class Scheduler {
 			try {
 				r.run();
 			} catch (Exception e) {
-				VoidPanel.LOGGER.error("Scheduled task failed", e);
+				VoidPanelCommon.LOGGER.error("Scheduled task failed", e);
 			}
 		}
 	}

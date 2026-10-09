@@ -2,19 +2,19 @@ package com.voidpanel.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.voidpanel.VoidPanel;
+import com.voidpanel.VoidPanelCommon;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import net.fabricmc.loader.api.FabricLoader;
 
 /** config/voidpanel.json. Every field can be edited by hand, then /voidpanel reload. */
 public final class Config {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 	private static Config instance = new Config();
+	private static Path dir = Path.of("config");
 
 	// ---- Messages ----
 	public String prefix = "&8[&5&lV&d&lP&8] &r";
@@ -85,7 +85,13 @@ public final class Config {
 	}
 
 	private static Path path() {
-		return FabricLoader.getInstance().getConfigDir().resolve("voidpanel.json");
+		return dir.resolve("voidpanel.json");
+	}
+
+	/** First load, with the loader's config folder. */
+	public static void load(Path configDir) {
+		dir = configDir;
+		load();
 	}
 
 	public static void load() {
@@ -98,7 +104,7 @@ public final class Config {
 					upgrade(loaded);
 				}
 			} catch (Exception e) {
-				VoidPanel.LOGGER.error("Could not read {}, using defaults", path, e);
+				VoidPanelCommon.LOGGER.error("Could not read {}, using defaults", path, e);
 			}
 		}
 		save();
@@ -120,7 +126,7 @@ public final class Config {
 				GSON.toJson(instance, w);
 			}
 		} catch (IOException e) {
-			VoidPanel.LOGGER.error("Could not save {}", path, e);
+			VoidPanelCommon.LOGGER.error("Could not save {}", path, e);
 		}
 	}
 }

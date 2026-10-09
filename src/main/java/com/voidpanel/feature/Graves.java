@@ -2,7 +2,7 @@ package com.voidpanel.feature;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
-import com.voidpanel.VoidPanel;
+import com.voidpanel.VoidPanelCommon;
 import com.voidpanel.config.Config;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Grave;
@@ -50,7 +50,7 @@ public final class Graves {
 			if (stack.isEmpty()) continue;
 			var encoded = ItemStack.CODEC.encodeStart(ops, stack);
 			if (encoded.isError()) {
-				VoidPanel.LOGGER.warn("Couldn't store {} in a grave, dropping it", stack);
+				VoidPanelCommon.LOGGER.warn("Couldn't store {} in a grave, dropping it", stack);
 				continue;
 			}
 			items.add(encoded.getOrThrow());

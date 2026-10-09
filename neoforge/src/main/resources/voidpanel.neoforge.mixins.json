@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "com.voidpanel.neoforge.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"PlayerListMessageMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

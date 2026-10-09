@@ -1,12 +1,20 @@
 # VoidPanel
 
-An Essentials-style server mod for Minecraft 26.3 (Fabric). Everything runs on the server, so vanilla clients can join without installing anything. Menus are chest GUIs, feedback goes to clickable chat and the action bar.
+An Essentials-style server mod for Minecraft 26.3 (Fabric) and 26.2 (NeoForge). Everything runs on the server, so vanilla clients can join without installing anything. Menus are chest GUIs, feedback goes to clickable chat and the action bar.
 
 ## Install
 
+**Fabric**
 1. Fabric Loader 0.19.5+ and Java 25 on the server.
 2. Put the VoidPanel jar and [Fabric API](https://modrinth.com/mod/fabric-api) (0.161.0+26.3 or newer) in `mods/`.
-3. Start the server. Settings are written to `config/voidpanel.json`; player data lives in `<world>/voidpanel/data.json`.
+3. Start the server.
+
+**NeoForge**
+1. Minecraft 26.2 with NeoForge 26.2.0.89+ and Java 25 on the server.
+2. Put `voidpanel-neoforge` in `mods/`. No other dependencies.
+3. Start the server.
+
+Either way, settings are written to `config/voidpanel.json`; player data lives in `<world>/voidpanel/data.json`.
 
 Open the main menu with `/voidpanel` (or `/vp`).
 
@@ -47,10 +55,17 @@ Open the main menu with `/voidpanel` (or `/vp`).
 ## Building
 
 ```bash
+# Fabric, written to build/libs/
 ./gradlew build
+
+# NeoForge 26.2, written to neoforge/build/libs/
+cd neoforge && ./gradlew build
+
+# NeoForge 26.3 instead
+cd neoforge && ./gradlew build -Pminecraft_version=26.3 -Pminecraft_version_range="[26.3,26.4)" -Pneo_version=26.3.0.64-beta
 ```
 
-The jar is written to `build/libs/`.
+The gameplay code in `src/main/java` is shared. `VoidPanel.java` is the Fabric entrypoint, and `neoforge/` holds the NeoForge entrypoint, its `neoforge.mods.toml` and one NeoForge-only mixin. Anything both loaders need goes through `VoidPanelCommon`.
 
 ## License
 
