@@ -1,0 +1,57 @@
+plugins {
+	id 'net.neoforged.moddev' version "${moddev_version}"
+}
+
+base {
+	archivesName = "voidpanel-neoforge"
+}
+
+// The gameplay code is shared with the Fabric build in ../src. Only the entrypoint
+// and the loader metadata are NeoForge-specific.
+sourceSets {
+	main {
+		java {
+			srcDir '../src/main/java'
+			exclude 'com/voidpanel/VoidPanel.java'
+		}
+		resources {
+			srcDir '../src/main/resources'
+			exclude 'fabric.mod.json'
+		}
+	}
+}
+
+neoForge {
+	version = project.neo_version
+
+	runs {
+		server {
+			server()
+			programArgument '--nogui'
+		}
+	}
+
+	mods {
+		voidpanel {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+processResources {
+	def props = [version: project.version, minecraft_version: project.minecraft_version, neo_version: project.neo_version]
+	inputs.properties props
+	filesMatching("META-INF/neoforge.mods.toml") {
+		expand props
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = "UTF-8"
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}

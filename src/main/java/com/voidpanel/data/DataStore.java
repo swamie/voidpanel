@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import java.util.HashMap;
 import com.google.gson.reflect.TypeToken;
-import com.voidpanel.VoidPanel;
+import com.voidpanel.VoidPanelCommon;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -125,7 +125,7 @@ public final class DataStore {
 				Root loaded = GSON.fromJson(r, new TypeToken<Root>() {}.getType());
 				if (loaded != null) root = loaded;
 			} catch (Exception e) {
-				VoidPanel.LOGGER.error("Could not read {}", file, e);
+				VoidPanelCommon.LOGGER.error("Could not read {}", file, e);
 			}
 		}
 		if (root.players == null) root.players = new LinkedHashMap<>();
@@ -158,7 +158,7 @@ public final class DataStore {
 			}
 			Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 		} catch (IOException e) {
-			VoidPanel.LOGGER.error("Could not save {}", file, e);
+			VoidPanelCommon.LOGGER.error("Could not save {}", file, e);
 		}
 	}
 

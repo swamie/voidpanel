@@ -8,9 +8,9 @@ import com.voidpanel.perm.Perms;
 import com.voidpanel.util.Msg;
 import com.voidpanel.util.Text;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.server.MinecraftServer;
@@ -26,8 +26,7 @@ public final class Chat {
 	// ---------------------------------------------------------------- chat
 
 	/** Replaces vanilla "<name> msg" with the configured format. Returns false to cancel vanilla. */
-	public static boolean onChat(PlayerChatMessage message, ServerPlayer sender) {
-		String raw = message.signedContent();
+	public static boolean onChat(String raw, ServerPlayer sender) {
 		if (ChatPrompts.handle(sender, raw)) return false;
 		MinecraftServer server = sender.level().getServer();
 		Afk.activity(sender);
@@ -158,12 +157,16 @@ public final class Chat {
 		return nick == null ? null : Text.of(nick);
 	}
 
+	/** Runs after a nickname changes. NeoForge caches display names and refreshes them here. */
+	public static Consumer<ServerPlayer> nickChanged = player -> {};
+
 	public static void setNick(ServerPlayer actor, ServerPlayer target, String nick) {
 		PlayerData data = DataStore.get(target.getUUID());
 		boolean self = actor == target;
 		if (nick == null || nick.equalsIgnoreCase("off") || nick.equalsIgnoreCase("reset")) {
 			data.nick = null;
 			DataStore.markDirty();
+			nickChanged.accept(target);
 			refreshTabName(target, target.level().getServer());
 			Msg.ok(actor, self ? "Nickname removed." : "Removed " + target.getGameProfile().name() + "'s nickname.");
 			return;
@@ -199,6 +202,7 @@ public final class Chat {
 		}
 		data.nick = nick;
 		DataStore.markDirty();
+		nickChanged.accept(target);
 		refreshTabName(target, server);
 		actor.sendSystemMessage(Msg.prefixed(Text.of(self ? "&aYour nickname is now " : "&a" + target.getGameProfile().name() + " is now ").append(Text.of(data.nick))));
 		if (!self) target.sendSystemMessage(Msg.prefixed(Text.of("&aYour nickname was set to ").append(Text.of(data.nick))));

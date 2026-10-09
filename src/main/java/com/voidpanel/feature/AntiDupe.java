@@ -1,6 +1,6 @@
 package com.voidpanel.feature;
 
-import com.voidpanel.VoidPanel;
+import com.voidpanel.VoidPanelCommon;
 import com.voidpanel.util.ItemBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,7 +26,7 @@ public final class AntiDupe {
 		for (int i = 0; i < inv.getContainerSize(); i++) {
 			if (ItemBuilder.isGuiItem(inv.getItem(i))) {
 				inv.setItem(i, ItemStack.EMPTY);
-				VoidPanel.LOGGER.warn("Removed a GUI item from {}'s inventory (slot {})", player.getGameProfile().name(), i);
+				VoidPanelCommon.LOGGER.warn("Removed a GUI item from {}'s inventory (slot {})", player.getGameProfile().name(), i);
 			}
 		}
 		if (ItemBuilder.isGuiItem(player.containerMenu.getCarried())) player.containerMenu.setCarried(ItemStack.EMPTY);
@@ -37,6 +37,10 @@ public final class AntiDupe {
 	}
 
 	public static void onEntityLoad(Entity entity) {
-		if (entity instanceof ItemEntity item && ItemBuilder.isGuiItem(item.getItem())) item.discard();
+		if (isGuiDrop(entity)) entity.discard();
+	}
+
+	public static boolean isGuiDrop(Entity entity) {
+		return entity instanceof ItemEntity item && ItemBuilder.isGuiItem(item.getItem());
 	}
 }
