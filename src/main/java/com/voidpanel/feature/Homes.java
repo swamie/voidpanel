@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.Loc;
 import com.voidpanel.data.PlayerData;
@@ -8,7 +9,7 @@ import com.voidpanel.perm.Perms;
 import com.voidpanel.util.Msg;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -85,17 +86,17 @@ public final class Homes {
 
 	public static Item icon(Home home) {
 		if (home.icon != null) {
-			Item item = BuiltInRegistries.ITEM.getValue(Identifier.tryParse(home.icon));
+			Item item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(home.icon));
 			if (item != null && item != Items.AIR) return item;
 		}
-		return Items.BED.red();
+		return DyeItems.BED.red();
 	}
 
 	/** The block you're standing on, so homes get a sensible icon straight away. */
 	private static String defaultIcon(ServerPlayer player) {
 		BlockPos below = player.blockPosition().below();
 		Item item = player.level().getBlockState(below).getBlock().asItem();
-		if (item == Items.AIR) item = Items.BED.red();
+		if (item == Items.AIR) item = DyeItems.BED.red();
 		return BuiltInRegistries.ITEM.getKey(item).toString();
 	}
 }

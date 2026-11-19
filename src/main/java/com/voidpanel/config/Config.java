@@ -16,6 +16,9 @@ public final class Config {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 	private static Config instance = new Config();
 
+	// ---- Feature toggles. Set a feature to false to switch it off (commands, menus and hooks). ----
+	public java.util.Map<String, Boolean> features = new java.util.LinkedHashMap<>();
+
 	// ---- Messages ----
 	public String prefix = "&8[&5&lV&d&lP&8] &r";
 
@@ -80,6 +83,12 @@ public final class Config {
 		return instance;
 	}
 
+	{
+		for (Feature f : Feature.values()) {
+			if (f != Feature.GRAVES && f != Feature.EMOTES) features.put(f.key, true);
+		}
+	}
+
 	public static Config defaults() {
 		return new Config();
 	}
@@ -109,6 +118,10 @@ public final class Config {
 		// current default, so upgrade by content rather than by number.)
 		if ("&f{display}&7: &f{message}".equals(c.chatFormat)) c.chatFormat = "{rank}{tag}{display}&7: &f{message}";
 		if (c.dailyRewards == null || c.dailyRewards.size() < com.voidpanel.feature.Daily.DAYS) c.dailyRewards = com.voidpanel.feature.Daily.defaults();
+		if (c.features == null) c.features = new java.util.LinkedHashMap<>();
+		for (Feature f : Feature.values()) {
+			if (f != Feature.GRAVES && f != Feature.EMOTES) c.features.putIfAbsent(f.key, true);
+		}
 		if (c.staffChatFormat == null) c.staffChatFormat = new Config().staffChatFormat;
 	}
 

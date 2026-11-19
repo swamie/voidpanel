@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.config.Config;
 import com.voidpanel.feature.Chat;
 import com.voidpanel.feature.ChatPrompts;
@@ -33,7 +34,7 @@ public final class ChatFormatGui extends Gui {
 	protected void build() {
 		Config cfg = Config.get();
 		Config def = Config.defaults();
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		set(4, ItemBuilder.of(Items.KNOWLEDGE_BOOK).name("&d&lPlaceholders & colours").lore(
 			"&f{rank} &7rank prefix  &f{tag} &7chat tag",
 			"&f{display} &7nickname (or name)",
@@ -50,8 +51,8 @@ public final class ChatFormatGui extends Gui {
 		// Row 1: public chat formats
 		Function<String, Component> chat = f -> Chat.preview(f, player);
 		entry(10, Items.OAK_SIGN, "Chat message", c -> c.chatFormat, (c, v) -> c.chatFormat = v, def.chatFormat, chat);
-		entry(12, Items.DYE.lime(), "Join message", c -> c.joinFormat, (c, v) -> c.joinFormat = v, def.joinFormat, chat);
-		entry(14, Items.DYE.red(), "Leave message", c -> c.leaveFormat, (c, v) -> c.leaveFormat = v, def.leaveFormat, chat);
+		entry(12, DyeItems.DYE.lime(), "Join message", c -> c.joinFormat, (c, v) -> c.joinFormat = v, def.joinFormat, chat);
+		entry(14, DyeItems.DYE.red(), "Leave message", c -> c.leaveFormat, (c, v) -> c.leaveFormat = v, def.leaveFormat, chat);
 		entry(16, Items.CAKE, "First-join welcome", c -> c.firstJoinFormat, (c, v) -> c.firstJoinFormat = v, def.firstJoinFormat, chat);
 
 		// Row 2: chat presets
@@ -98,10 +99,10 @@ public final class ChatFormatGui extends Gui {
 			Emotes.list(player);
 		});
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new MainGui(player));
 		closeButton(49);
-		fill(Items.STAINED_GLASS_PANE.gray());
+		fill(DyeItems.STAINED_GLASS_PANE.gray());
 	}
 
 	private void entry(int slot, Item icon, String label, Function<Config, String> getter, BiConsumer<Config, String> setter, String fallback,

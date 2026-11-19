@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.config.Config;
 import com.voidpanel.data.Loc;
 import com.voidpanel.feature.Combat;
@@ -14,14 +15,14 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -38,12 +39,12 @@ import net.minecraft.world.level.levelgen.Heightmap;
 public final class RtpGui extends Gui {
 	private static final Map<UUID, Long> COOLDOWNS = new HashMap<>();
 	private static final Item[] PANES = {
-		Items.STAINED_GLASS_PANE.magenta(), Items.STAINED_GLASS_PANE.purple(), Items.STAINED_GLASS_PANE.pink(),
-		Items.STAINED_GLASS_PANE.lightBlue(), Items.STAINED_GLASS_PANE.cyan(), Items.STAINED_GLASS_PANE.blue()};
+		DyeItems.STAINED_GLASS_PANE.magenta(), DyeItems.STAINED_GLASS_PANE.purple(), DyeItems.STAINED_GLASS_PANE.pink(),
+		DyeItems.STAINED_GLASS_PANE.lightBlue(), DyeItems.STAINED_GLASS_PANE.cyan(), DyeItems.STAINED_GLASS_PANE.blue()};
 	private static final Item[] REEL_ITEMS = {
 		Items.GRASS_BLOCK, Items.SAND, Items.SNOW_BLOCK, Items.JUNGLE_LOG, Items.ACACIA_LOG, Items.SPRUCE_LOG,
 		Items.BIRCH_LOG, Items.DARK_OAK_LOG, Items.CHERRY_LOG, Items.MANGROVE_ROOTS, Items.RED_SAND, Items.STONE,
-		Items.MYCELIUM, Items.PODZOL, Items.PALE_OAK_LOG, Items.OAK_LOG, Items.TERRACOTTA, Items.MOSS_BLOCK};
+		Items.MYCELIUM, Items.PODZOL, Items.OAK_LOG, Items.TERRACOTTA, Items.MOSS_BLOCK};
 
 	/** Gaps (in ticks) between reel steps: fast, then slowing down. */
 	private static final int[] STEPS;
@@ -87,8 +88,8 @@ public final class RtpGui extends Gui {
 	@Override
 	protected void build() {
 		if (state == State.IDLE) {
-			fill(Items.STAINED_GLASS_PANE.black());
-			for (int i : new int[] {0, 2, 4, 6, 8, 18, 20, 22, 24, 26}) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.purple()));
+			fill(DyeItems.STAINED_GLASS_PANE.black());
+			for (int i : new int[] {0, 2, 4, 6, 8, 18, 20, 22, 24, 26}) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.purple()));
 			int r = Config.get().rtpRange;
 			set(13, ItemBuilder.of(Items.ENDER_CHEST).name("&d&lOpen the Void Crate").glint(true).lore(
 				"&7Spin to be sent somewhere random",
@@ -118,7 +119,7 @@ public final class RtpGui extends Gui {
 		}
 		// Start loading the chunks now; the spin gives them time to generate.
 		for (Candidate c : candidates) {
-			overworld.getChunkSource().addTicketWithRadius(TicketType.PORTAL, new ChunkPos(c.x >> 4, c.z >> 4), 1);
+			overworld.getChunkSource().addRegionTicket(TicketType.PORTAL, new ChunkPos(c.x >> 4, c.z >> 4), 1, new net.minecraft.core.BlockPos(c.x, 64, c.z));
 		}
 		state = State.SPINNING;
 		step = 0;
@@ -158,7 +159,7 @@ public final class RtpGui extends Gui {
 	private void refreshSpin() {
 		// Top/bottom rows cycle colours, the middle row is the reel.
 		for (int i = 0; i < 9; i++) {
-			Item top = state == State.REVEALED ? (paneShift % 2 == 0 ? Items.STAINED_GLASS_PANE.lime() : Items.STAINED_GLASS_PANE.yellow())
+			Item top = state == State.REVEALED ? (paneShift % 2 == 0 ? DyeItems.STAINED_GLASS_PANE.lime() : DyeItems.STAINED_GLASS_PANE.yellow())
 				: PANES[(i + paneShift) % PANES.length];
 			set(i, ItemBuilder.filler(top));
 			set(18 + i, ItemBuilder.filler(top));
@@ -191,7 +192,7 @@ public final class RtpGui extends Gui {
 			BlockPos spot = safeSpot(overworld, c.x, c.z);
 			if (spot != null) {
 				COOLDOWNS.put(player.getUUID(), System.currentTimeMillis() + Config.get().rtpCooldownSeconds * 1000L);
-				Teleports.teleport(player, new Loc(overworld.dimension().identifier().toString(),
+				Teleports.teleport(player, new Loc(overworld.dimension().location().toString(),
 					spot.getX() + 0.5, spot.getY(), spot.getZ() + 0.5, player.getYRot(), 0));
 				Msg.ok(player, "Welcome to &f" + spot.getX() + ", " + spot.getY() + ", " + spot.getZ() + "&a!");
 				return;
@@ -227,7 +228,7 @@ public final class RtpGui extends Gui {
 	private static BlockPos safeSpot(ServerLevel level, int x, int z) {
 		if (level.getChunkSource().getChunkNow(x >> 4, z >> 4) == null) return null;
 		int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-		if (y <= level.getMinY() + 1) return null;
+		if (y <= level.getMinBuildHeight() + 1) return null;
 		BlockPos ground = new BlockPos(x, y - 1, z);
 		BlockState state = level.getBlockState(ground);
 		if (!state.getFluidState().isEmpty()) return null;
@@ -252,12 +253,12 @@ public final class RtpGui extends Gui {
 	}
 
 	private static Component biomeName(Holder<Biome> biome) {
-		Identifier id = biome.unwrapKey().map(k -> k.identifier()).orElse(Identifier.withDefaultNamespace("plains"));
+		ResourceLocation id = biome.unwrapKey().map(k -> k.location()).orElse(ResourceLocation.withDefaultNamespace("plains"));
 		return Component.translatable(Util.makeDescriptionId("biome", id));
 	}
 
 	private static Item iconFor(Holder<Biome> biome) {
-		String id = biome.unwrapKey().map(k -> k.identifier().getPath()).orElse("plains");
+		String id = biome.unwrapKey().map(k -> k.location().getPath()).orElse("plains");
 		if (id.contains("badlands")) return Items.RED_SAND;
 		if (id.contains("desert") || id.contains("beach")) return Items.SAND;
 		if (id.contains("snowy") || id.contains("frozen") || id.contains("ice") || id.contains("grove")) return Items.SNOW_BLOCK;
@@ -265,7 +266,6 @@ public final class RtpGui extends Gui {
 		if (id.contains("savanna")) return Items.ACACIA_LOG;
 		if (id.contains("taiga")) return Items.SPRUCE_LOG;
 		if (id.contains("birch")) return Items.BIRCH_LOG;
-		if (id.contains("pale")) return Items.PALE_OAK_LOG;
 		if (id.contains("dark_forest")) return Items.DARK_OAK_LOG;
 		if (id.contains("cherry")) return Items.CHERRY_LOG;
 		if (id.contains("mangrove") || id.contains("swamp")) return Items.MANGROVE_ROOTS;

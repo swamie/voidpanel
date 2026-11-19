@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.feature.Afk;
 import com.voidpanel.feature.Ignore;
@@ -17,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Items;
 
 /** A player's profile: stats up top, actions below, staff tools at the bottom. */
@@ -39,7 +40,7 @@ public final class ProfileGui extends Gui {
 		var rank = Ranks.of(target.id());
 		boolean self = target.id().equals(player.getUUID());
 
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.purple()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.purple()));
 		ItemBuilder head = online != null ? ItemBuilder.head(online) : ItemBuilder.head(target.id(), target.name());
 		set(4, head.name(online != null ? Text.of("").append(Ranks.prefix(target.id())).append(Ranks.coloredName(online)) : Text.of(rank.prefix + rank.nameColor + target.name()))
 			.lore("&7Rank: " + rank.display + " " + Ranks.expiryNote(target.id()),
@@ -51,7 +52,7 @@ public final class ProfileGui extends Gui {
 		set(21, ItemBuilder.of(Items.IRON_SWORD).name("&a&lMob kills").lore("&f" + d.mobKills).clean().build());
 		set(22, ItemBuilder.of(Items.DIAMOND_SWORD).name("&c&lPlayer kills").lore("&f" + d.playerKills).clean().build());
 		set(23, ItemBuilder.of(Items.SKELETON_SKULL).name("&7&lDeaths").lore("&f" + d.deaths).build());
-		set(24, ItemBuilder.of(Items.BED.red()).name("&b&lHomes").lore("&f" + d.homes.size() + "&7/&f" + Perms.homeLimit(target.id())).build());
+		set(24, ItemBuilder.of(DyeItems.BED.red()).name("&b&lHomes").lore("&f" + d.homes.size() + "&7/&f" + Perms.homeLimit(target.id())).build());
 		set(25, ItemBuilder.of(Items.BLAZE_POWDER).name("&6&lDaily streak").lore("&f" + d.dailyStreak).build());
 
 		ServerPlayer live = online;
@@ -71,14 +72,14 @@ public final class ProfileGui extends Gui {
 		}
 		if (!self && Perms.has(player, Perm.IGNORE)) {
 			boolean ignoring = Ignore.isIgnoring(player.getUUID(), target.id());
-			set(33, ItemBuilder.of(ignoring ? Items.DYE.lime() : Items.BARRIER).name(ignoring ? "&a&lStop ignoring" : "&c&lIgnore").build(), c -> {
+			set(33, ItemBuilder.of(ignoring ? DyeItems.DYE.lime() : Items.BARRIER).name(ignoring ? "&a&lStop ignoring" : "&c&lIgnore").build(), c -> {
 				Ignore.toggle(player, target);
 				refresh();
 			});
 		}
 
 		// Staff row
-		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.gray()));
+		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.gray()));
 		if (Perms.has(player, Perm.PUNISH)) {
 			set(37, ItemBuilder.of(Items.ANVIL).name("&c&lPunish").lore("&7Warn, mute, kick or ban.").build(), c -> new PunishGui(player, target).open());
 			set(38, ItemBuilder.of(Items.BOOK).name("&6&lHistory").lore("&f" + d.punishments.size() + " &7records").build(), c -> new HistoryGui(player, target).open());
@@ -95,9 +96,9 @@ public final class ProfileGui extends Gui {
 		if (Perms.has(player, Perm.RANKS)) set(42, ItemBuilder.of(Items.DIAMOND).name("&b&lSet rank").lore("&7Current: " + rank.display).build(), c -> new RankPickerGui(player, target, this).open());
 		if (Perms.has(player, Perm.PERMISSIONS)) set(43, ItemBuilder.of(Items.COMMAND_BLOCK).name("&c&lPermissions").build(), c -> new PermissionEditorGui(player, target).open());
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new PlayersGui(player, false));
 		closeButton(49);
-		fill(Items.STAINED_GLASS_PANE.gray());
+		fill(DyeItems.STAINED_GLASS_PANE.gray());
 	}
 }

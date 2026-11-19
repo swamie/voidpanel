@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.feature.ChatPrompts;
 import com.voidpanel.feature.Moderation;
@@ -9,7 +10,7 @@ import com.voidpanel.util.ItemBuilder;
 import com.voidpanel.util.Msg;
 import java.util.function.Consumer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -40,7 +41,7 @@ public final class PunishGui extends Gui {
 
 	@Override
 	protected void build() {
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.red()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.red()));
 		var d = DataStore.get(target.id());
 		set(4, ItemBuilder.head(target.id(), target.name()).name("&c&l" + target.name()).lore(
 			"&7Past punishments: &f" + d.punishments.size(),
@@ -51,7 +52,7 @@ public final class PunishGui extends Gui {
 			case REASON -> {
 				for (int i = 0; i < REASONS.length; i++) {
 					String r = REASONS[i][0];
-					Item icon = net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse(REASONS[i][1]));
+					Item icon = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.parse(REASONS[i][1]));
 					set(10 + i, ItemBuilder.of(icon).name("&e&l" + r).clean().lore("&e▶ Click to choose").build(), c -> choose(r));
 				}
 				set(16, ItemBuilder.of(Items.WRITABLE_BOOK).name("&f&lCustom reason").lore("&e▶ Click, then type it").build(), c ->
@@ -76,7 +77,7 @@ public final class PunishGui extends Gui {
 				}
 			}
 		}
-		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		if (step != Step.REASON) {
 			set(27, ItemBuilder.of(Items.ARROW).name("&e← Back a step").build(), c -> {
 				step = step == Step.DURATION ? Step.ACTION : Step.REASON;
@@ -87,7 +88,7 @@ public final class PunishGui extends Gui {
 		}
 		set(31, ItemBuilder.of(Items.BOOK).name("&6History").build(), c -> new HistoryGui(player, target).open());
 		closeButton(35);
-		fill(Items.STAINED_GLASS_PANE.gray());
+		fill(DyeItems.STAINED_GLASS_PANE.gray());
 	}
 
 	private void choose(String r) {
@@ -111,7 +112,7 @@ public final class PunishGui extends Gui {
 
 	private void execute(long millis) {
 		var server = player.level().getServer();
-		String by = player.getGameProfile().name();
+		String by = player.getGameProfile().getName();
 		Consumer<String> fb = s -> Msg.info(player, s);
 		close();
 		switch (action) {

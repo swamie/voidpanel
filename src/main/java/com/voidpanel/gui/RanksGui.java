@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Rank;
 import com.voidpanel.feature.ChatPrompts;
@@ -9,7 +10,7 @@ import com.voidpanel.util.Msg;
 import com.voidpanel.util.Text;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -21,13 +22,13 @@ public final class RanksGui extends Gui {
 	}
 
 	static Item icon(Rank r) {
-		Item i = BuiltInRegistries.ITEM.getValue(Identifier.tryParse(r.icon));
+		Item i = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(r.icon));
 		return i == null || i == Items.AIR ? Items.IRON_INGOT : i;
 	}
 
 	@Override
 	protected void build() {
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		set(4, ItemBuilder.of(Items.KNOWLEDGE_BOOK).name("&d&lHow ranks work").lore(
 			"&7Everyone starts in the &fdefault &7rank.",
 			"&7A rank's permissions override the",
@@ -40,7 +41,7 @@ public final class RanksGui extends Gui {
 		List<Rank> ranks = Ranks.sorted();
 		Rank def = Ranks.defaultRank();
 		page(ranks, 9, 27, 0, (slot, r) -> set(slot, ItemBuilder.of(icon(r)).name(Text.of(r.display)).glint(r == def).clean().lore(
-			"&7Prefix: " + (r.prefix.isEmpty() ? "&8none" : r.prefix + "&7" + player.getGameProfile().name()),
+			"&7Prefix: " + (r.prefix.isEmpty() ? "&8none" : r.prefix + "&7" + player.getGameProfile().getName()),
 			"&7Weight: &f" + r.weight,
 			"&7Members: &f" + Ranks.members(r),
 			"&7Home limit: &f" + (r.homeLimit != null ? r.homeLimit : "default"),
@@ -51,7 +52,7 @@ public final class RanksGui extends Gui {
 			"",
 			"&e▶ Click to edit").build(), c -> new RankEditorGui(player, r).open()));
 
-		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(36, new MainGui(player));
 		set(40, ItemBuilder.of(Items.EMERALD).name("&a&l+ New rank").lore("&e▶ Click, then type an id (e.g. &fbuilder&e)").build(), c ->
 			ChatPrompts.ask(player, "Type an id for the new rank (letters/numbers):", null, id -> {

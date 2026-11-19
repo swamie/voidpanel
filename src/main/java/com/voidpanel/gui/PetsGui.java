@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData.Pet;
 import com.voidpanel.feature.Pets;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -71,7 +72,7 @@ public final class PetsGui extends Gui {
 			if (e.getValue().type != null && e.getValue().loc != null && filter.accepts(e.getValue().type)) pets.add(e);
 		}
 
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		set(4, ItemBuilder.of(Items.LEAD).name("&d&lPet Teleport").lore(
 			"&eLeft-click &7a pet to bring it to you",
 			"&eRight-click &7to make it sit / stand",
@@ -119,7 +120,7 @@ public final class PetsGui extends Gui {
 			set(31, ItemBuilder.of(Items.CLOCK).name("&7No pets found").lore("&7Tame a wolf, cat, parrot or horse", "&7and it'll show up here.").build());
 		}
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(45, -1, 53, page, pages, p -> {
 			page = p;
 			refresh();
@@ -164,10 +165,10 @@ public final class PetsGui extends Gui {
 	}
 
 	private static Item iconFor(String type) {
-		EntityType<?> et = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.tryParse(type));
+		EntityType<?> et = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.tryParse(type));
 		if (et != null) {
 			var egg = SpawnEggItem.byId(et);
-			if (egg.isPresent()) return egg.get().value();
+			if (egg != null) return egg;
 		}
 		return Items.LEAD;
 	}

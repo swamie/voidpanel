@@ -47,15 +47,15 @@ public final class Msg {
 	/** A clickable chat button like [✔ ACCEPT]. */
 	public static MutableComponent button(String legacyLabel, String command, String legacyHover) {
 		return Text.of(legacyLabel).withStyle(s -> s
-			.withClickEvent(new ClickEvent.RunCommand(command))
-			.withHoverEvent(new HoverEvent.ShowText(Text.of(legacyHover))));
+			.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
+			.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of(legacyHover))));
 	}
 
 	/** A button that puts text into the player's chat box instead of running it. */
 	public static MutableComponent suggest(String legacyLabel, String text, String legacyHover) {
 		return Text.of(legacyLabel).withStyle(s -> s
-			.withClickEvent(new ClickEvent.SuggestCommand(text))
-			.withHoverEvent(new HoverEvent.ShowText(Text.of(legacyHover))));
+			.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, text))
+			.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of(legacyHover))));
 	}
 
 	public static void sound(ServerPlayer player, SoundEvent sound, float volume, float pitch) {

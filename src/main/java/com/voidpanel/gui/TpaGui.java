@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.feature.Tpa;
 import com.voidpanel.util.ItemBuilder;
 import com.voidpanel.util.Msg;
@@ -20,7 +21,7 @@ public final class TpaGui extends Gui {
 		List<ServerPlayer> others = player.level().getServer().getPlayerList().getPlayers().stream()
 			.filter(p -> p != player && com.voidpanel.feature.Vanish.canSee(player, p)).toList();
 		int pages = page(others, 0, 45, page, (slot, target) -> set(slot, ItemBuilder.head(target).name(target.getDisplayName()).lore(
-			"&7Real name: &f" + target.getGameProfile().name(),
+			"&7Real name: &f" + target.getGameProfile().getName(),
 			"&7World: &f" + com.voidpanel.data.Loc.of(target).dimName(),
 			"",
 			"&e▶ Left-click &7to teleport to them",
@@ -29,7 +30,7 @@ public final class TpaGui extends Gui {
 				Tpa.request(player, target, c.right());
 			}));
 		if (others.isEmpty()) set(22, ItemBuilder.of(Items.CLOCK).name("&7Nobody else is online").build());
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(45, 49, 53, page, pages, p -> {
 			page = p;
 			refresh();

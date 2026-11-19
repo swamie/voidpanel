@@ -5,7 +5,7 @@ import com.voidpanel.perm.Perms;
 import com.voidpanel.util.Msg;
 import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 
 /** /ignore: hide someone's chat, private messages and teleport requests. Staff can't be ignored. */
 public final class Ignore {

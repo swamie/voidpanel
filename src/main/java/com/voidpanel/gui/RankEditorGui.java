@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Rank;
 import com.voidpanel.feature.Chat;
@@ -26,14 +27,14 @@ public final class RankEditorGui extends Gui {
 	@Override
 	protected void build() {
 		boolean isDefault = rank == Ranks.defaultRank();
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		set(4, ItemBuilder.of(RanksGui.icon(rank)).name(Text.of(rank.display)).glint(true).lore(
-			"&7In chat: " + rank.prefix + rank.nameColor + player.getGameProfile().name() + "&7: &fHello!",
+			"&7In chat: " + rank.prefix + rank.nameColor + player.getGameProfile().getName() + "&7: &fHello!",
 			"&7Members: &f" + Ranks.members(rank)).build());
 
 		text(10, Items.NAME_TAG, "Display name", rank.display, "Shown in menus and rank-up messages.", (r, v) -> r.display = v);
 		text(11, Items.OAK_SIGN, "Prefix", rank.prefix, "Goes before names. Tip: make one in the gradient maker.", (r, v) -> r.prefix = v.isEmpty() ? "" : v + (v.endsWith(" ") ? "" : " "));
-		text(12, Items.DYE.cyan(), "Name colour", rank.nameColor, "Colour codes for the name, e.g. &b or &#55ffff", (r, v) -> r.nameColor = v);
+		text(12, DyeItems.DYE.cyan(), "Name colour", rank.nameColor, "Colour codes for the name, e.g. &b or &#55ffff", (r, v) -> r.nameColor = v);
 		set(13, ItemBuilder.of(RanksGui.icon(rank)).name("&e&lIcon").lore("&e▶ Click to pick a block").build(), c ->
 			new IconPickerGui(player, rank.id, RanksGui.icon(rank), this, item -> {
 				rank.icon = BuiltInRegistries.ITEM.getKey(item).toString();
@@ -43,7 +44,7 @@ public final class RankEditorGui extends Gui {
 
 		number(19, Items.ANVIL, "Weight", rank.weight, "Higher = more important. Sorts the tab list", "and decides who ranks above who.", v -> rank.weight = v, false);
 		Integer hl = rank.homeLimit;
-		set(20, ItemBuilder.of(Items.BED.red()).name("&e&lHome limit: &f" + (hl != null ? hl : "default")).count(hl != null ? Math.max(1, Math.min(64, hl)) : 1).lore(
+		set(20, ItemBuilder.of(DyeItems.BED.red()).name("&e&lHome limit: &f" + (hl != null ? hl : "default")).count(hl != null ? Math.max(1, Math.min(64, hl)) : 1).lore(
 			"&eLeft &7+1  &eRight &7-1", "&eShift-click &7use the default").build(), c -> {
 				if (c.shift()) rank.homeLimit = null;
 				else rank.homeLimit = Math.max(0, Math.min(54, (hl != null ? hl : 3) + (c.right() ? -1 : 1)));
@@ -68,7 +69,7 @@ public final class RankEditorGui extends Gui {
 		toggle(15, "Prefix in chat", rank.showInChat, "Show " + rank.prefix + "&7before names in chat.", () -> rank.showInChat = !rank.showInChat);
 		toggle(16, "Prefix in tab list", rank.showInTab, "Show " + rank.prefix + "&7before names in the tab list.", () -> rank.showInTab = !rank.showInTab);
 
-		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(36, new RanksGui(player));
 		if (!isDefault) {
 			set(44, ItemBuilder.of(Items.LAVA_BUCKET).name("&c&lDelete rank").lore("&7Members fall back to the default rank.").build(), c ->
@@ -81,7 +82,7 @@ public final class RankEditorGui extends Gui {
 				}, () -> new RankEditorGui(player, rank).open()).open());
 		}
 		closeButton(40);
-		fill(Items.STAINED_GLASS_PANE.gray());
+		fill(DyeItems.STAINED_GLASS_PANE.gray());
 	}
 
 	private void text(int slot, Item icon, String label, String current, String help, BiConsumer<Rank, String> setter) {
@@ -99,7 +100,7 @@ public final class RankEditorGui extends Gui {
 	}
 
 	private void toggle(int slot, String label, boolean on, String help, Runnable flip) {
-		set(slot, ItemBuilder.of(on ? Items.CONCRETE.lime() : Items.CONCRETE.red()).name((on ? "&a&l" : "&c&l") + label + ": " + (on ? "YES" : "NO"))
+		set(slot, ItemBuilder.of(on ? DyeItems.CONCRETE.lime() : DyeItems.CONCRETE.red()).name((on ? "&a&l" : "&c&l") + label + ": " + (on ? "YES" : "NO"))
 			.lore("&7" + help, "", "&e▶ Click to turn " + (on ? "off" : "on")).build(), c -> {
 				flip.run();
 				saved();

@@ -43,7 +43,7 @@ public final class Tpa {
 		}
 		inbox.put(from.getUUID(), new Request(System.currentTimeMillis() + Config.get().tpaExpireSeconds * 1000L, here));
 
-		String fromName = from.getGameProfile().name();
+		String fromName = from.getGameProfile().getName();
 		to.sendSystemMessage(Component.empty());
 		to.sendSystemMessage(Msg.prefixed(Component.empty().append(from.getDisplayName()).append(Text.of(here ? " &7wants &fyou &7to teleport &fto them&7." : " &7wants to teleport &fto you&7."))));
 		to.sendSystemMessage(Msg.prefixed(Component.empty()
@@ -56,7 +56,7 @@ public final class Tpa {
 		Msg.actionBar(to, "&d✉ &fTeleport request from &d" + name(from));
 
 		from.sendSystemMessage(Msg.prefixed(Text.of("&7Request sent to ").append(to.getDisplayName()).append(Text.of("&7. "))
-			.append(Msg.button("&c[✘ Cancel]", "/tpacancel " + to.getGameProfile().name(), "&7Withdraw the request"))));
+			.append(Msg.button("&c[✘ Cancel]", "/tpacancel " + to.getGameProfile().getName(), "&7Withdraw the request"))));
 		Msg.sound(from, SoundEvents.NOTE_BLOCK_CHIME, 0.6f, 1.2f);
 	}
 
@@ -128,7 +128,7 @@ public final class Tpa {
 		if (inbox == null) return java.util.List.of();
 		MinecraftServer server = target.level().getServer();
 		return inbox.keySet().stream().map(id -> server.getPlayerList().getPlayer(id)).filter(p -> p != null)
-			.map(p -> p.getGameProfile().name()).toList();
+			.map(p -> p.getGameProfile().getName()).toList();
 	}
 
 	public static void tick(MinecraftServer server) {

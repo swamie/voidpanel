@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.feature.ChatPrompts;
 import com.voidpanel.feature.Ignore;
@@ -10,7 +11,7 @@ import com.voidpanel.util.Msg;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Items;
 
 /** /ignore: who you're ignoring (top) and who's online (bottom). */
@@ -32,9 +33,9 @@ public final class IgnoreGui extends Gui {
 				refresh();
 			});
 		});
-		if (ignored.isEmpty()) set(13, ItemBuilder.of(Items.DYE.lime()).name("&aYou're not ignoring anyone").build());
+		if (ignored.isEmpty()) set(13, ItemBuilder.of(DyeItems.DYE.lime()).name("&aYou're not ignoring anyone").build());
 
-		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.gray()));
+		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.gray()));
 		set(31, ItemBuilder.of(Items.PLAYER_HEAD).name("&7Online players &8(click to ignore)").build());
 		List<ServerPlayer> online = server.getPlayerList().getPlayers().stream()
 			.filter(p -> p != player && Vanish.canSee(player, p) && !ignored.contains(p.getStringUUID())).toList();
@@ -43,7 +44,7 @@ public final class IgnoreGui extends Gui {
 			refresh();
 		}));
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new MainGui(player));
 		set(49, ItemBuilder.of(Items.NAME_TAG).name("&e&lIgnore by name").lore("&7For someone who's offline.", "", "&e▶ Click, then type a name").build(), c ->
 			ChatPrompts.ask(player, "Type the name of the player to ignore:", null, name -> Moderation.resolve(server, name, r -> {

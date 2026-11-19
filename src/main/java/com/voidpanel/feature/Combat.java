@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.config.Feature;
 import com.voidpanel.config.Config;
 import com.voidpanel.util.Msg;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ public final class Combat {
 	}
 
 	public static void tag(ServerPlayer player) {
+		if (!Feature.COMBAT_TAG.enabled()) return;
 		if (player.isCreative() || player.isSpectator()) return;
 		boolean was = TAGGED.containsKey(player.getUUID());
 		TAGGED.put(player.getUUID(), Config.get().combatTagSeconds * 20);
@@ -35,6 +37,7 @@ public final class Combat {
 	}
 
 	public static boolean inCombat(ServerPlayer player) {
+		if (!Feature.COMBAT_TAG.enabled()) return false;
 		return TAGGED.containsKey(player.getUUID());
 	}
 

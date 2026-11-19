@@ -1,5 +1,6 @@
 package com.voidpanel.perm;
 
+import com.voidpanel.util.DyeItems;
 import java.util.List;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -8,14 +9,14 @@ import net.minecraft.world.item.Items;
 public enum Perm {
 	// ---------------------------------------------------------------- travel
 	PANEL(Cat.TRAVEL, "panel", "Void Panel", Items.NETHER_STAR, false, "Open the main menu with /voidpanel."),
-	SETHOME(Cat.TRAVEL, "sethome", "Set Home", Items.BED.white(), false, "Save homes with /sethome [name]."),
-	HOMES(Cat.TRAVEL, "homes", "Homes Menu", Items.BED.red(), false, "Open the /homes menu, change icons,", "rename and delete homes."),
+	SETHOME(Cat.TRAVEL, "sethome", "Set Home", DyeItems.BED.white(), false, "Save homes with /sethome [name]."),
+	HOMES(Cat.TRAVEL, "homes", "Homes Menu", DyeItems.BED.red(), false, "Open the /homes menu, change icons,", "rename and delete homes."),
 	HOME(Cat.TRAVEL, "home", "Teleport Home", Items.ENDER_PEARL, false, "Warp home with /home [name]."),
 	WARP(Cat.TRAVEL, "warp", "Warps", Items.END_PORTAL_FRAME, false, "Use server warps with /warp and /warps."),
 	TPA(Cat.TRAVEL, "tpa", "Send TPA", Items.ENDER_EYE, false, "Ask to teleport to someone with /tpa."),
 	TPAHERE(Cat.TRAVEL, "tpahere", "Send TPA Here", Items.CHORUS_FRUIT, false, "Ask someone to teleport to you", "with /tpahere."),
-	TPACCEPT(Cat.TRAVEL, "tpaccept", "Accept TPA", Items.DYE.lime(), false, "Accept teleport requests with /tpaccept."),
-	TPDENY(Cat.TRAVEL, "tpdeny", "Deny TPA", Items.DYE.red(), false, "Deny teleport requests with /tpdeny."),
+	TPACCEPT(Cat.TRAVEL, "tpaccept", "Accept TPA", DyeItems.DYE.lime(), false, "Accept teleport requests with /tpaccept."),
+	TPDENY(Cat.TRAVEL, "tpdeny", "Deny TPA", DyeItems.DYE.red(), false, "Deny teleport requests with /tpdeny."),
 	RTP(Cat.TRAVEL, "rtp", "Random Teleport", Items.FILLED_MAP, false, "Spin the /rtp crate to land somewhere random."),
 	BACK(Cat.TRAVEL, "back", "Back", Items.RECOVERY_COMPASS, false, "Return to your last location or", "death point with /back."),
 	SPAWN(Cat.TRAVEL, "spawn", "Spawn", Items.COMPASS, false, "Teleport to spawn with /spawn."),
@@ -27,10 +28,10 @@ public enum Perm {
 	IGNORE(Cat.SOCIAL, "ignore", "Ignore", Items.BARRIER, false, "Hide someone's chat, messages and", "requests with /ignore."),
 	EMOTES(Cat.SOCIAL, "chat.emotes", "Chat Emotes", Items.GOLD_NUGGET, false, "Use emotes like o/ :shrug: <3 in chat.", "(Hypixel MVP++ style)"),
 	CHAT_ITEM(Cat.SOCIAL, "chat.item", "[item] in Chat", Items.ITEM_FRAME, false, "Show off the held item by typing", "[item] in chat."),
-	CHAT_COLOR(Cat.SOCIAL, "chat.color", "Coloured Chat", Items.DYE.pink(), true, "Use & colour codes in chat messages."),
+	CHAT_COLOR(Cat.SOCIAL, "chat.color", "Coloured Chat", DyeItems.DYE.pink(), true, "Use & colour codes in chat messages."),
 	NICK(Cat.SOCIAL, "nick", "Nickname", Items.NAME_TAG, false, "Change your display name with /nick."),
-	NICK_COLOR(Cat.SOCIAL, "nick.color", "Coloured Nickname", Items.DYE.magenta(), true, "Use & colour codes in /nick."),
-	GRADIENT(Cat.SOCIAL, "gradient", "Gradient Maker", Items.WOOL.lime(), false, "Build colour gradients from blocks", "with /gradient."),
+	NICK_COLOR(Cat.SOCIAL, "nick.color", "Coloured Nickname", DyeItems.DYE.magenta(), true, "Use & colour codes in /nick."),
+	GRADIENT(Cat.SOCIAL, "gradient", "Gradient Maker", DyeItems.WOOL.lime(), false, "Build colour gradients from blocks", "with /gradient."),
 	TAGS(Cat.SOCIAL, "tags", "Chat Tags", Items.PAPER, false, "Pick a chat tag with /tags."),
 	PROFILE(Cat.SOCIAL, "profile", "Profiles", Items.PLAYER_HEAD, false, "View player profiles with /profile", "and /players."),
 	AFK(Cat.SOCIAL, "afk", "AFK", Items.CLOCK, false, "Mark yourself away with /afk."),

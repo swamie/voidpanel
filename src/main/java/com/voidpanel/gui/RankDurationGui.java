@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Rank;
 import com.voidpanel.feature.ChatPrompts;
@@ -9,7 +10,7 @@ import com.voidpanel.util.ItemBuilder;
 import com.voidpanel.util.Msg;
 import com.voidpanel.util.Text;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -40,7 +41,7 @@ public final class RankDurationGui extends Gui {
 	@Override
 	protected void build() {
 		var server = player.level().getServer();
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.purple()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.purple()));
 		ServerPlayer live = server.getPlayerList().getPlayer(target.id());
 		ItemBuilder head = live != null ? ItemBuilder.head(live) : ItemBuilder.head(target.id(), target.name());
 		String prev = DataStore.find(target.id()).map(d -> d.rankExpires > 0 && d.previousRank != null ? d.previousRank : d.rank).orElse(null);
@@ -71,15 +72,15 @@ public final class RankDurationGui extends Gui {
 					give(millis);
 				}));
 
-		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(27, parent);
 		closeButton(35);
-		fill(Items.STAINED_GLASS_PANE.gray());
+		fill(DyeItems.STAINED_GLASS_PANE.gray());
 	}
 
 	private void give(long millis) {
 		var server = player.level().getServer();
-		Ranks.set(server, target.id(), target.name(), rank, player.getGameProfile().name(), millis);
+		Ranks.set(server, target.id(), target.name(), rank, player.getGameProfile().getName(), millis);
 		Msg.ok(player, target.name() + " is now " + Text.strip(rank.display) + (millis > 0 ? " for " + Moderation.formatDuration(millis) : " permanently") + ".");
 		parent.open();
 	}

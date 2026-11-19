@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.Loc;
 import com.voidpanel.feature.Afk;
 import com.voidpanel.feature.ChatPrompts;
@@ -12,7 +13,7 @@ import com.voidpanel.util.Text;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Items;
 
 /** /players: everyone online, sorted by rank. Click for their profile (or to punish them). */
@@ -30,7 +31,7 @@ public final class PlayersGui extends Gui {
 		var server = player.level().getServer();
 		List<ServerPlayer> online = server.getPlayerList().getPlayers().stream()
 			.filter(p -> Vanish.canSee(player, p))
-			.sorted(Comparator.comparingInt((ServerPlayer p) -> -Ranks.of(p.getUUID()).weight).thenComparing(p -> p.getGameProfile().name()))
+			.sorted(Comparator.comparingInt((ServerPlayer p) -> -Ranks.of(p.getUUID()).weight).thenComparing(p -> p.getGameProfile().getName()))
 			.toList();
 		int pages = page(online, 0, 45, page, (slot, p) -> set(slot, ItemBuilder.head(p)
 			.name(Text.of("").append(Ranks.prefix(p.getUUID())).append(Ranks.coloredName(p)))
@@ -43,7 +44,7 @@ public final class PlayersGui extends Gui {
 					if (punishMode) new PunishGui(player, who).open();
 					else new ProfileGui(player, who).open();
 				}));
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(45, -1, 53, page, pages, p -> {
 			page = p;
 			refresh();

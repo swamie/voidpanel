@@ -33,6 +33,7 @@ import com.voidpanel.feature.Sit;
 import com.voidpanel.feature.Spawn;
 import com.voidpanel.feature.Tpa;
 import com.voidpanel.gui.BansGui;
+import com.voidpanel.gui.FeaturesGui;
 import com.voidpanel.gui.DailyGui;
 import com.voidpanel.gui.GravesGui;
 import com.voidpanel.gui.HistoryGui;
@@ -45,6 +46,7 @@ import com.voidpanel.gui.TagsGui;
 import com.voidpanel.gui.TopGui;
 import com.voidpanel.gui.WarpsGui;
 import com.voidpanel.gui.ChatFormatGui;
+import com.voidpanel.gui.FeaturesGui;
 import com.voidpanel.gui.GradientGui;
 import com.voidpanel.gui.PetsGui;
 import com.voidpanel.gui.HomesGui;
@@ -75,7 +77,7 @@ public final class Cmds {
 	private static final SuggestionProvider<CommandSourceStack> ONLINE = (ctx, b) -> {
 		ServerPlayer viewer = ctx.getSource().getPlayer();
 		return SharedSuggestionProvider.suggest(ctx.getSource().getServer().getPlayerList().getPlayers().stream()
-			.filter(p -> viewer == null || Vanish.canSee(viewer, p)).map(p -> p.getGameProfile().name()), b);
+			.filter(p -> viewer == null || Vanish.canSee(viewer, p)).map(p -> p.getGameProfile().getName()), b);
 	};
 
 	private static final SuggestionProvider<CommandSourceStack> WARPS = (ctx, b) ->
@@ -104,7 +106,7 @@ public final class Cmds {
 
 	private static final SuggestionProvider<CommandSourceStack> BANNED = (ctx, b) ->
 		SharedSuggestionProvider.suggest(Moderation.bans(ctx.getSource().getServer()).stream()
-			.filter(e -> e.getUser() != null).map(e -> e.getUser().name()), b);
+			.filter(e -> e.getUser() != null).map(e -> e.getUser().getName()), b);
 
 	private static final SuggestionProvider<CommandSourceStack> BLACKLISTED = (ctx, b) ->
 		SharedSuggestionProvider.suggest(Moderation.ipBans(ctx.getSource().getServer()).stream().map(e -> e.getUser()), b);
@@ -126,18 +128,23 @@ public final class Cmds {
 
 	public static void register(CommandDispatcher<CommandSourceStack> d) {
 		// ---------------------------------------------------------------- panel
-		var panel = d.register(cmd("voidpanel", Perm.PANEL)
-			.executes(c -> player(c, (p, x) -> new MainGui(p).open()))
-			.then(literal("reload").requires(s -> Perms.check(s, Perm.CHAT_ADMIN) || Perms.check(s, Perm.PERMISSIONS)).executes(c -> {
+		var panel = d.register(literal("voidpanel").requires(s -> s.hasPermission(3) || Perms.check(s, Perm.PANEL))
+			.executes(c -> player(c, (p, x) -> {
+				if (Perms.has(p, Perm.PANEL)) new MainGui(p).open();
+				else Msg.err(p, "The main menu is switched off. Admins can use &f/voidpanel features&c.");
+			}))
+			.then(literal("reload").requires(s -> s.hasPermission(3) || Perms.check(s, Perm.CHAT_ADMIN) || Perms.check(s, Perm.PERMISSIONS)).executes(c -> {
 				Config.load();
+				c.getSource().getServer().getPlayerList().getPlayers().forEach(p -> c.getSource().getServer().getCommands().sendCommands(p));
 				c.getSource().sendSuccess(() -> Msg.prefixed(Text.of("&aConfig reloaded.")), true);
 				return 1;
 			}))
+			.then(literal("features").requires(s -> s.hasPermission(3)).executes(c -> player(c, (p, x) -> new FeaturesGui(p, null).open())))
 			.then(literal("chat").requires(s -> Perms.check(s, Perm.CHAT_ADMIN)).executes(c -> player(c, (p, x) -> new ChatFormatGui(p).open())))
 			.then(literal("cancel").executes(c -> player(c, (p, x) -> {
 				if (ChatPrompts.cancel(p)) Msg.info(p, "Cancelled.");
 			}))));
-		d.register(cmd("vp", Perm.PANEL).executes(c -> player(c, (p, x) -> new MainGui(p).open())).redirect(panel));
+		d.register(literal("vp").requires(s -> s.hasPermission(3) || Perms.check(s, Perm.PANEL)).redirect(panel));
 		// Used by the [Cancel] button on chat prompts; works without the panel permission.
 		d.register(literal("vpcancel").executes(c -> player(c, (p, x) -> {
 			if (ChatPrompts.cancel(p)) Msg.info(p, "Cancelled.");
@@ -233,7 +240,7 @@ public final class Cmds {
 			.executes(c -> player(c, (p, x) -> Emotes.list(p)))
 			.then(literal("toggle").executes(c -> player(c, (p, x) -> Emotes.toggle(p)))));
 		d.register(cmd("pets", Perm.PETS)
-			.executes(c -> player(c, (p, x) -> new PetsGui(p, p.getUUID(), p.getGameProfile().name()).open()))
+			.executes(c -> player(c, (p, x) -> new PetsGui(p, p.getUUID(), p.getGameProfile().getName()).open()))
 			.then(argument("player", StringArgumentType.word()).suggests(ONLINE).requires(s -> Perms.check(s, Perm.PETS_OTHERS))
 				.executes(c -> player(c, (p, x) -> {
 					String name = StringArgumentType.getString(x, "player");
@@ -263,13 +270,13 @@ public final class Cmds {
 				CommandSourceStack src = c.getSource();
 				String name = StringArgumentType.getString(c, "player");
 				var entry = Moderation.bans(src.getServer()).stream()
-					.filter(e -> e.getUser() != null && e.getUser().name().equalsIgnoreCase(name)).findFirst();
+					.filter(e -> e.getUser() != null && e.getUser().getName().equalsIgnoreCase(name)).findFirst();
 				if (entry.isEmpty()) {
 					src.sendFailure(Msg.prefixed(Text.of("&c" + name + " isn't banned.")));
 					return 0;
 				}
-				Moderation.unban(src.getServer(), entry.get().getUser());
-				reply(src).accept("&aUnbanned &f" + entry.get().getUser().name() + "&a.");
+				Moderation.unban(src.getServer(), new com.voidpanel.util.NameAndId(entry.get().getUser()));
+				reply(src).accept("&aUnbanned &f" + entry.get().getUser().getName() + "&a.");
 				return 1;
 			})));
 
@@ -306,7 +313,7 @@ public final class Cmds {
 	}
 
 	/** Resolve a (maybe offline) player name, then run the action on the server thread. */
-	private static int withProfile(CommandContext<CommandSourceStack> c, String arg, Consumer<net.minecraft.server.players.NameAndId> action) {
+	private static int withProfile(CommandContext<CommandSourceStack> c, String arg, Consumer<com.voidpanel.util.NameAndId> action) {
 		String name = StringArgumentType.getString(c, arg);
 		CommandSourceStack src = c.getSource();
 		Moderation.resolve(src.getServer(), name, r -> {
@@ -390,7 +397,7 @@ public final class Cmds {
 		d.register(cmd("daily", Perm.DAILY).executes(c -> player(c, (p, x) -> new DailyGui(p).open())));
 		d.register(cmd("players", Perm.PROFILE).executes(c -> player(c, (p, x) -> new PlayersGui(p, false).open())));
 		d.register(cmd("profile", Perm.PROFILE)
-			.executes(c -> player(c, (p, x) -> new ProfileGui(p, new net.minecraft.server.players.NameAndId(p.getGameProfile())).open()))
+			.executes(c -> player(c, (p, x) -> new ProfileGui(p, new com.voidpanel.util.NameAndId(p.getGameProfile())).open()))
 			.then(argument("player", StringArgumentType.word()).suggests(ONLINE).executes(c -> player(c, (p, x) ->
 				withProfile(x, "player", who -> new ProfileGui(p, who).open())))));
 		d.register(cmd("top", Perm.TOP).executes(c -> player(c, (p, x) -> new TopGui(p).open())));

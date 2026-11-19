@@ -1,7 +1,7 @@
 package com.voidpanel.data;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -26,11 +26,11 @@ public class Loc {
 	}
 
 	public static Loc of(ServerPlayer p) {
-		return new Loc(p.level().dimension().identifier().toString(), p.getX(), p.getY(), p.getZ(), p.getYRot(), p.getXRot());
+		return new Loc(p.level().dimension().location().toString(), p.getX(), p.getY(), p.getZ(), p.getYRot(), p.getXRot());
 	}
 
 	public ServerLevel level(MinecraftServer server) {
-		return server.getLevel(ResourceKey.create(Registries.DIMENSION, Identifier.parse(dim)));
+		return server.getLevel(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(dim)));
 	}
 
 	public String dimName() {
@@ -56,6 +56,6 @@ public class Loc {
 	}
 
 	public boolean isOverworld() {
-		return Level.OVERWORLD.identifier().toString().equals(dim);
+		return Level.OVERWORLD.location().toString().equals(dim);
 	}
 }

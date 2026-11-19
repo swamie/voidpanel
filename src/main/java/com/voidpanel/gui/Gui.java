@@ -16,7 +16,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -166,7 +166,7 @@ public abstract class Gui {
 		}
 	}
 
-	private void handle(int slot, ContainerInput input, int button) {
+	private void handle(int slot, ClickType input, int button) {
 		if (dead) return;
 		Click click = new Click(input, button);
 		if (click.ignored()) return;
@@ -193,9 +193,9 @@ public abstract class Gui {
 	}
 
 	/** What kind of click happened. */
-	public record Click(ContainerInput input, int button) {
+	public record Click(ClickType input, int button) {
 		public boolean shift() {
-			return input == ContainerInput.QUICK_MOVE;
+			return input == ClickType.QUICK_MOVE;
 		}
 
 		public boolean left() {
@@ -207,7 +207,7 @@ public abstract class Gui {
 		}
 
 		boolean ignored() {
-			return input != ContainerInput.PICKUP && input != ContainerInput.QUICK_MOVE;
+			return input != ClickType.PICKUP && input != ClickType.QUICK_MOVE;
 		}
 	}
 
@@ -222,7 +222,7 @@ public abstract class Gui {
 		}
 
 		@Override
-		public void clicked(int slot, int button, ContainerInput input, Player player) {
+		public void clicked(int slot, int button, ClickType input, Player player) {
 			// Never call super: nothing moves. The client's prediction is corrected
 			// by broadcastChanges() right after this returns.
 			if (slot >= 0 && slot < this.slots.size()) gui.handle(slot, input, button);

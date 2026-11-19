@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -39,7 +39,7 @@ public final class Graves {
 		if (DataStore.find(player.getUUID()).map(d -> d.gravesOff).orElse(false)) return false;
 		Inventory inv = player.getInventory();
 		if (inv.isEmpty()) return false;
-		ServerLevel level = player.level();
+		ServerLevel level = player.serverLevel();
 		BlockPos pos = findSpot(level, player.blockPosition());
 		if (pos == null) return false;
 
@@ -61,8 +61,8 @@ public final class Graves {
 		Grave g = new Grave();
 		g.id = UUID.randomUUID().toString().substring(0, 8);
 		g.owner = player.getStringUUID();
-		g.ownerName = player.getGameProfile().name();
-		g.dim = level.dimension().identifier().toString();
+		g.ownerName = player.getGameProfile().getName();
+		g.dim = level.dimension().location().toString();
 		g.x = pos.getX();
 		g.y = pos.getY();
 		g.z = pos.getZ();
@@ -78,11 +78,11 @@ public final class Graves {
 
 	/** Nearest free space at or above the death spot. */
 	private static BlockPos findSpot(ServerLevel level, BlockPos death) {
-		int y = Math.max(level.getMinY() + 1, Math.min(level.getMaxY() - 1, death.getY()));
+		int y = Math.max(level.getMinBuildHeight() + 1, Math.min(level.getMaxBuildHeight() - 1, death.getY()));
 		BlockPos start = new BlockPos(death.getX(), y, death.getZ());
 		for (int dy = 0; dy < 24; dy++) {
 			BlockPos p = start.above(dy);
-			if (p.getY() >= level.getMaxY()) break;
+			if (p.getY() >= level.getMaxBuildHeight()) break;
 			BlockState s = level.getBlockState(p);
 			if ((s.isAir() || s.canBeReplaced()) && at(level, p) == null) return p;
 		}
@@ -90,7 +90,7 @@ public final class Graves {
 	}
 
 	public static Grave at(Level level, BlockPos pos) {
-		String dim = level.dimension().identifier().toString();
+		String dim = level.dimension().location().toString();
 		for (Grave g : DataStore.root().graves) {
 			if (g.x == pos.getX() && g.y == pos.getY() && g.z == pos.getZ() && g.dim.equals(dim)) return g;
 		}
@@ -125,7 +125,7 @@ public final class Graves {
 	}
 
 	public static ServerLevel level(MinecraftServer server, Grave g) {
-		return server.getLevel(ResourceKey.create(Registries.DIMENSION, Identifier.parse(g.dim)));
+		return server.getLevel(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(g.dim)));
 	}
 
 	/** Is the chest block still there? If not (exploded, etc.) the owner can claim from /graves. */

@@ -2,17 +2,40 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "minecraft:gold_block",
-    "minecraft:gold_block",
-    "minecraft:gold_block",
-    "minecraft:gold_block",
-    "minecraft:gold_block",
-    "minecraft:totem_of_undying",
-    "minecraft:apple",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard"
+    {
+      "item": "minecraft:gold_block"
+    },
+    {
+      "item": "minecraft:gold_block"
+    },
+    {
+      "item": "minecraft:gold_block"
+    },
+    {
+      "item": "minecraft:gold_block"
+    },
+    {
+      "item": "minecraft:gold_block"
+    },
+    {
+      "item": "minecraft:totem_of_undying"
+    },
+    {
+      "item": "minecraft:apple"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
   ],
   "result": {
     "id": "minecraft:enchanted_golden_apple"
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "voidpanel:golden_apple_recipe_enabled"
+    }
+  ]
 }

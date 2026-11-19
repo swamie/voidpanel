@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.config.Feature;
 import com.voidpanel.config.Config;
 import com.voidpanel.perm.Perm;
 import com.voidpanel.perm.Perms;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 
 /** /afk plus automatic AFK after being idle, with an optional kick. */
 public final class Afk {
@@ -51,6 +52,7 @@ public final class Afk {
 	}
 
 	public static void tick(MinecraftServer server) {
+		if (!Feature.AFK.enabled()) return;
 		Config cfg = Config.get();
 		long now = Util.getMillis();
 		for (ServerPlayer p : List.copyOf(server.getPlayerList().getPlayers())) {

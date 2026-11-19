@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.config.Feature;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Rank;
 import com.voidpanel.data.PlayerData;
@@ -169,6 +170,7 @@ public final class Ranks {
 
 	/** "[VIP] " as a component, or empty. Always shown (menus, profiles). */
 	public static Component prefix(UUID player) {
+		if (!Feature.RANKS.enabled()) return Component.empty();
 		String p = of(player).prefix;
 		return p == null || p.isEmpty() ? Component.empty() : Text.of(p);
 	}
@@ -185,7 +187,7 @@ public final class Ranks {
 
 	/** The player's display name wrapped in their rank's name colour. */
 	public static MutableComponent coloredName(ServerPlayer player) {
-		Style style = Text.styleOf(of(player.getUUID()).nameColor);
+		Style style = Feature.RANKS.enabled() ? Text.styleOf(of(player.getUUID()).nameColor) : Style.EMPTY;
 		return Component.empty().withStyle(style).append(player.getDisplayName());
 	}
 
@@ -210,7 +212,7 @@ public final class Ranks {
 				if (best == null || r.weight > best.weight) best = r;
 			}
 			if (best != null && d.rankExpires == 0) {
-				set(server, p.getUUID(), p.getGameProfile().name(), best, null);
+				set(server, p.getUUID(), p.getGameProfile().getName(), best, null);
 				server.getPlayerList().broadcastSystemMessage(Msg.prefixed(Text.of("&d&l✦ ").append(coloredName(p))
 					.append(Text.of(" &7ranked up to ")).append(Text.of(best.display)).append(Text.of(" &7for playing &f" + best.autoHours + "h&7!"))), false);
 			}

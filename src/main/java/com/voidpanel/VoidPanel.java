@@ -2,6 +2,7 @@ package com.voidpanel;
 
 import com.voidpanel.command.Cmds;
 import com.voidpanel.config.Config;
+import com.voidpanel.config.Feature;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.feature.AntiDupe;
 import com.voidpanel.feature.Afk;
@@ -43,6 +44,7 @@ public class VoidPanel implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		Config.load();
+		com.voidpanel.feature.RecipeToggle.register();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Cmds.register(dispatcher));
 
@@ -55,18 +57,18 @@ public class VoidPanel implements ModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			Scheduler.tick();
 			Gui.tickAll();
-			Combat.tick(server);
+			if (Feature.COMBAT_TAG.enabled()) Combat.tick(server);
 			Teleports.tick(server);
-			if (++ticks % 5 == 0) AntiDupe.tick(server);
+			if (++ticks % 5 == 0 && Feature.ANTI_DUPE.enabled()) AntiDupe.tick(server);
 			if (ticks % 20 == 0) {
 				Tpa.tick(server);
 				Afk.tick(server);
-				Stats.tick(server);
+				if (Feature.STATS.enabled()) Stats.tick(server);
 			}
-			if (ticks % 40 == 0) Vanish.tick(server);
-			if (ticks % 200 == 0) Ranks.checkExpiry(server);
-			if (ticks % 1200 == 0) Ranks.checkPromotions(server);
-			if (ticks % 200 == 0) Pets.scan(server);
+			if (ticks % 40 == 0 && Feature.VANISH.enabled()) Vanish.tick(server);
+			if (ticks % 200 == 0 && Feature.RANKS.enabled()) Ranks.checkExpiry(server);
+			if (ticks % 1200 == 0 && Feature.RANKS.enabled()) Ranks.checkPromotions(server);
+			if (ticks % 200 == 0 && Feature.PETS.enabled()) Pets.scan(server);
 			if (ticks % 600 == 0) DataStore.saveIfDirty();
 		});
 
@@ -86,7 +88,7 @@ public class VoidPanel implements ModInitializer {
 		});
 
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
-			AntiDupe.onEntityLoad(entity);
+			if (Feature.ANTI_DUPE.enabled()) AntiDupe.onEntityLoad(entity);
 			Pets.record(entity);
 		});
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> Pets.onUnload(entity));
@@ -95,10 +97,12 @@ public class VoidPanel implements ModInitializer {
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if (entity instanceof ServerPlayer player) {
 				Spawn.onDeath(player);
-				Stats.onDeath(player);
+				if (Feature.STATS.enabled()) Stats.onDeath(player);
 			}
 		});
-		ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register((level, killer, killed, source) -> Stats.onKill(killer, killed));
+		ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register((level, killer, killed) -> {
+			if (Feature.STATS.enabled()) Stats.onKill(killer, killed);
+		});
 
 		// Graves: right-click to recover, and nobody else can break them.
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {

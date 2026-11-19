@@ -40,11 +40,11 @@ public final class Messages {
 				return;
 			}
 			if (!Vanish.canSee(from, to)) {
-				Msg.err(from, to.getGameProfile().name() + " isn't online.");
+				Msg.err(from, to.getGameProfile().getName() + " isn't online.");
 				return;
 			}
 			if (Ignore.ignores(to, from)) {
-				Msg.err(from, to.getGameProfile().name() + " isn't accepting messages from you.");
+				Msg.err(from, to.getGameProfile().getName() + " isn't accepting messages from you.");
 				return;
 			}
 		}
@@ -63,7 +63,7 @@ public final class Messages {
 		Msg.sound(to, SoundEvents.NOTE_BLOCK_CHIME, 0.7f, 1.6f);
 		Msg.actionBar(to, "&d✉ &fNew message from &d" + (from != null ? from.getDisplayName().getString() : "Server") + " &8| &7/r to reply");
 
-		if (Afk.isAfk(to) && from != null) Msg.info(from, "&f" + to.getGameProfile().name() + " &7is AFK and may not reply right away.");
+		if (Afk.isAfk(to) && from != null) Msg.info(from, "&f" + to.getGameProfile().getName() + " &7is AFK and may not reply right away.");
 		UUID fromId = from != null ? from.getUUID() : CONSOLE;
 		LAST.put(to.getUUID(), fromId);
 		LAST.put(fromId, to.getUUID());
@@ -105,10 +105,10 @@ public final class Messages {
 
 	/** Name that suggests "/msg <name> " when clicked. */
 	private static MutableComponent clickable(ServerPlayer p) {
-		String name = p.getGameProfile().name();
+		String name = p.getGameProfile().getName();
 		return Component.empty().append(p.getDisplayName()).withStyle(s -> s
-			.withClickEvent(new ClickEvent.SuggestCommand("/msg " + name + " "))
-			.withHoverEvent(new HoverEvent.ShowText(Text.of("&7Click to message &f" + name))));
+			.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/msg " + name + " "))
+			.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("&7Click to message &f" + name))));
 	}
 
 	public static Component preview(String template, ServerPlayer viewer) {

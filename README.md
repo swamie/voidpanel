@@ -1,11 +1,11 @@
 # VoidPanel
 
-An Essentials-style server mod for Minecraft 26.3 (Fabric). Everything runs on the server, so vanilla clients can join without installing anything. Menus are chest GUIs, feedback goes to clickable chat and the action bar.
+An Essentials-style server mod for Minecraft 1.21.1 (Fabric), built to run alongside Cobblemon and the Cobbleverse modpack. Everything runs on the server, so vanilla clients can join without installing anything. Menus are chest GUIs, feedback goes to clickable chat and the action bar.
 
 ## Install
 
-1. Fabric Loader 0.19.5+ and Java 25 on the server.
-2. Put the VoidPanel jar and [Fabric API](https://modrinth.com/mod/fabric-api) (0.161.0+26.3 or newer) in `mods/`.
+1. Fabric Loader 0.16.0+ and Java 21 on the server.
+2. Put the VoidPanel jar and [Fabric API](https://modrinth.com/mod/fabric-api) (0.116.18+1.21.1 or newer) in `mods/`.
 3. Start the server. Settings are written to `config/voidpanel.json`; player data lives in `<world>/voidpanel/data.json`.
 
 Open the main menu with `/voidpanel` (or `/vp`).
@@ -43,6 +43,16 @@ Open the main menu with `/voidpanel` (or `/vp`).
 - `/daily` rewards calendar with streaks, `/profile`, `/players`, `/top` leaderboards
 - `/hat`, `/sit`
 - Enchanted golden apple recipe: 5 gold blocks, 1 totem of undying, 1 apple, 2 echo shards (shapeless)
+
+## Turning features off
+
+Every feature has a switch. Set it to `false` under `"features"` in `config/voidpanel.json` and run `/voidpanel reload`, or open `/voidpanel features` (also a button on the main menu) and click it. Off means the commands, menu buttons and background behaviour all stop. Two older switches still work and show up in the same menu: `gravesEnabled` and `emotesEnabled`.
+
+Feature keys: panel, homes, warps, tpa, rtp, spawn, pets, messages, ignore, chatItem, chatColor, nicknames, gradient, tags, profiles, afk, hat, sit, daily, top, punish, bans, whitelistPanel, invsee, vanish, staffChat, ranks, permissionsEditor, chatFormat, tabList, combatTag, teleportWarmup, antiDupe, stats, goldenAppleRecipe.
+
+Handy for Cobbleverse: turn off `homes`, `warps`, `tpa` or `spawn` if another mod already provides those commands. `chatFormat` off leaves chat and join/leave messages to vanilla. The golden apple recipe switch needs a restart or `/reload` to take effect.
+
+Notes for 1.21.1: the tab list can't be sorted by rank (the game added that later), and `/pets` covers tamed vanilla animals, not Cobblemon Pokemon.
 
 ## Building
 

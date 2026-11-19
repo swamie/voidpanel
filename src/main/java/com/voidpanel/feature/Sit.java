@@ -25,12 +25,12 @@ public final class Sit {
 			Msg.err(player, "You need to be standing on the ground to sit.");
 			return;
 		}
-		ServerLevel level = player.level();
+		ServerLevel level = player.serverLevel();
 		Seat seat = new Seat(level);
 		seat.setPos(player.getX(), player.getY(), player.getZ());
 		seat.setYRot(player.getYRot());
 		level.addFreshEntity(seat);
-		if (!player.startRiding(seat, true, false)) {
+		if (!player.startRiding(seat, true)) {
 			seat.discard();
 			Msg.err(player, "You can't sit here.");
 			return;
@@ -48,7 +48,7 @@ public final class Sit {
 	/** Client sees a plain item_display holding nothing. Never saved to disk. */
 	public static final class Seat extends Display.ItemDisplay {
 		public Seat(Level level) {
-			super(net.minecraft.world.entity.EntityTypes.ITEM_DISPLAY, level);
+			super(net.minecraft.world.entity.EntityType.ITEM_DISPLAY, level);
 			this.setInvisible(true);
 			this.setNoGravity(true);
 		}

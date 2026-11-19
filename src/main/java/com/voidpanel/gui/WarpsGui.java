@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Warp;
 import com.voidpanel.feature.ChatPrompts;
@@ -58,7 +59,7 @@ public final class WarpsGui extends Gui {
 		if (warps.isEmpty()) {
 			set(22, ItemBuilder.of(Items.CLOCK).name("&7No warps yet").lore(admin ? "&7Use &f/setwarp <name> &7or the button below." : "&7An admin hasn't made any warps yet.").build());
 		}
-		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(36, -1, 44, page, pages, p -> {
 			page = p;
 			refresh();

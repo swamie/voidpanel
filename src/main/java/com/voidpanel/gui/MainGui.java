@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.config.Config;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.Loc;
@@ -24,7 +25,7 @@ import com.voidpanel.util.Msg;
 import com.voidpanel.util.Text;
 import java.util.List;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -38,7 +39,7 @@ public final class MainGui extends Gui {
 	@Override
 	protected void build() {
 		var data = DataStore.get(player.getUUID());
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.purple()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.purple()));
 		set(4, ItemBuilder.head(player).name(Text.of("").append(Ranks.prefix(player.getUUID())).append(Ranks.coloredName(player))).lore(
 			"&7Rank: " + Ranks.of(player.getUUID()).display,
 			"&7Playtime: &f" + Stats.playtime(data.playtimeSeconds),
@@ -48,7 +49,7 @@ public final class MainGui extends Gui {
 			"&e▶ Click for your profile").build(), c -> new ProfileGui(player, new NameAndId(player.getGameProfile())).open());
 
 		// Row 1: travel
-		tool(10, Perm.HOMES, Items.BED.red(), "&a&lHomes", List.of("&7Warp to and organise your homes.", "", "&8/homes"), () -> new HomesGui(player).open());
+		tool(10, Perm.HOMES, DyeItems.BED.red(), "&a&lHomes", List.of("&7Warp to and organise your homes.", "", "&8/homes"), () -> new HomesGui(player).open());
 		tool(11, Perm.WARP, Items.END_PORTAL_FRAME, "&d&lWarps", List.of("&7Server warps set by the admins.", "", "&8/warps"), () -> new WarpsGui(player).open());
 		tool(12, Perm.SPAWN, Items.COMPASS, "&b&lSpawn", List.of("&7Warp to the server spawn.", "", "&8/spawn"), () -> {
 			close();
@@ -61,7 +62,7 @@ public final class MainGui extends Gui {
 		tool(14, Perm.RTP, Items.FILLED_MAP, "&d&lRandom Teleport", List.of("&7Spin the crate and land", "&7somewhere new.", "", "&8/rtp"), () -> RtpGui.openFor(player));
 		tool(15, Perm.TPA, Items.ENDER_EYE, "&5&lTeleport Request", List.of("&7Pick a player to teleport to,", "&7or bring to you.", "", "&8/tpa  /tpahere"), () -> new TpaGui(player).open());
 		tool(16, Perm.PETS, Items.BONE, "&6&lPets", List.of("&7Force your pets to teleport", "&7to you, even from far away.", "", "&8/pets"),
-			() -> new PetsGui(player, player.getUUID(), player.getGameProfile().name()).open());
+			() -> new PetsGui(player, player.getUUID(), player.getGameProfile().getName()).open());
 
 		// Row 2: social
 		tool(19, Perm.MSG, Items.WRITABLE_BOOK, "&d&lMessage", List.of("&7Send a private message.", "", "&8/msg <player> <message>"), () -> {
@@ -95,7 +96,7 @@ public final class MainGui extends Gui {
 				}
 			});
 		}
-		tool(24, Perm.GRADIENT, Items.WOOL.magenta(), "&#ff5f6d&lG&#ff7a5c&lr&#ff955b&la&#ffb05a&ld&#ffcb59&li&#e5d65e&le&#b8d86a&ln&#8bdb76&lt &f&lMaker",
+		tool(24, Perm.GRADIENT, DyeItems.WOOL.magenta(), "&#ff5f6d&lG&#ff7a5c&lr&#ff955b&la&#ffb05a&ld&#ffcb59&li&#e5d65e&le&#b8d86a&ln&#8bdb76&lt &f&lMaker",
 			List.of("&7Make a colour gradient from", "&7blocks for your nickname.", "", "&8/gradient"), () -> new GradientGui(player).open());
 		tool(25, Perm.IGNORE, Items.BARRIER, "&c&lIgnore", List.of("&7Hide someone's chat,", "&7messages and requests.", "", "&8/ignore"), () -> new IgnoreGui(player).open());
 
@@ -128,7 +129,7 @@ public final class MainGui extends Gui {
 		}
 
 		// Row 4: staff
-		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.gray()));
+		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.gray()));
 		tool(36, Perm.PUNISH, Items.ANVIL, "&c&lPunish", List.of("&7Warn, mute, kick or ban.", "", "&8/punish <player>"), () -> new PlayersGui(player, true).open());
 		tool(37, Perm.BAN, Items.IRON_BARS, "&4&lBans", List.of("&7Review and lift bans.", "", "&8/ban  /blacklist"), () -> new BansGui(player, false).open());
 		tool(38, Perm.WHITELIST, Items.MAP, "&f&lWhitelist", List.of("&7Add, remove and review", "&7whitelisted players.", "", "&8/whitelist panel"), () -> new WhitelistGui(player).open());
@@ -157,15 +158,21 @@ public final class MainGui extends Gui {
 		});
 
 		// Row 5
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		if (Perms.has(player, Perm.CHAT_ADMIN) || Perms.has(player, Perm.PERMISSIONS)) {
 			set(45, ItemBuilder.of(Items.REPEATER).name("&7&lReload Config").lore("&7Reload config/voidpanel.json", "&7after editing it by hand.").build(), c -> {
 				Config.load();
 				Msg.ok(player, "Config reloaded.");
 			});
 		}
+		if (Perms.isAdmin(player)) {
+			set(46, ItemBuilder.of(Items.COMPARATOR).name("&d&lFeature Toggles").lore("&7Switch any VoidPanel feature", "&7on or off.", "", "&8/voidpanel features").build(), c -> {
+				Msg.click(player);
+				new FeaturesGui(player, this).open();
+			});
+		}
 		closeButton(49);
-		fill(Items.STAINED_GLASS_PANE.gray());
+		fill(DyeItems.STAINED_GLASS_PANE.gray());
 	}
 
 	private void tool(int slot, Perm perm, Item icon, String name, List<String> lore, Runnable action) {

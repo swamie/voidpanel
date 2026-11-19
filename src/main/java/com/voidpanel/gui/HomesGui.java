@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData;
 import com.voidpanel.data.PlayerData.Home;
@@ -54,7 +55,7 @@ public final class HomesGui extends Gui {
 			}
 		}));
 
-		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		if (homes.isEmpty()) {
 			set(13, ItemBuilder.of(Items.CLOCK).name("&7No homes yet").lore("&7Use &f/sethome <name> &7or the", "&7bed button below to make one.").build());
 		}
@@ -62,7 +63,7 @@ public final class HomesGui extends Gui {
 
 		boolean full = homes.size() >= limit;
 		if (Perms.has(player, Perm.SETHOME)) {
-			set(30, ItemBuilder.of(full ? Items.BED.gray() : Items.BED.lime()).name(full ? "&7Home limit reached" : "&a&l+ Set home here")
+			set(30, ItemBuilder.of(full ? DyeItems.BED.gray() : DyeItems.BED.lime()).name(full ? "&7Home limit reached" : "&a&l+ Set home here")
 				.lore(full ? new String[] {"&7Delete a home to make room."} : new String[] {"&7Saves your current position.", "", "&e▶ Click, then type a name"}).build(), c -> {
 					if (full) {
 						Msg.err(player, "You've reached your home limit.");

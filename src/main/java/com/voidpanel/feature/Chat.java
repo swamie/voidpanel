@@ -1,6 +1,7 @@
 package com.voidpanel.feature;
 
 import com.voidpanel.config.Config;
+import com.voidpanel.config.Feature;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData;
 import com.voidpanel.perm.Perm;
@@ -41,6 +42,8 @@ public final class Chat {
 			StaffChat.send(sender, raw.startsWith("#") ? raw.substring(1).trim() : raw);
 			return false;
 		}
+		// Chat formatting switched off: leave the message to vanilla.
+		if (!Feature.CHAT_FORMAT.enabled()) return true;
 
 		server.sendSystemMessage(line(sender, ChatRender.render(sender, raw, null)));
 		for (ServerPlayer viewer : server.getPlayerList().getPlayers()) {
@@ -65,12 +68,13 @@ public final class Chat {
 		map.put("rank", Ranks.chatPrefix(player.getUUID()));
 		map.put("tag", Tags.of(player.getUUID()));
 		map.put("display", Ranks.coloredName(player));
-		map.put("name", Component.literal(player.getGameProfile().name()));
+		map.put("name", Component.literal(player.getGameProfile().getName()));
 		return map;
 	}
 
 	/** Swallow vanilla's yellow join/leave lines; we send our own. */
 	public static boolean allowGameMessage(Component message) {
+		if (!Feature.CHAT_FORMAT.enabled()) return true;
 		if (message.getContents() instanceof TranslatableContents t) {
 			String key = t.getKey();
 			return !(key.startsWith("multiplayer.player.joined") || key.equals("multiplayer.player.left"));
@@ -89,7 +93,7 @@ public final class Chat {
 	public static void onJoin(ServerPlayer player, MinecraftServer server) {
 		boolean first = !DataStore.has(player.getUUID());
 		PlayerData data = DataStore.get(player.getUUID());
-		data.name = player.getGameProfile().name();
+		data.name = player.getGameProfile().getName();
 		data.lastIp = player.getIpAddress();
 		data.lastSeen = System.currentTimeMillis();
 		if (first) data.firstJoin = data.lastSeen;
@@ -104,18 +108,19 @@ public final class Chat {
 			if (other != player) player.connection.send(tabUpdate(other));
 		}
 
-		if (first && Config.get().sendNewPlayersToSpawn && DataStore.root().spawn != null) {
+		if (first && Feature.SPAWN.enabled() && Config.get().sendNewPlayersToSpawn && DataStore.root().spawn != null) {
 			var spawn = DataStore.root().spawn;
 			var level = spawn.level(server);
-			if (level != null) player.teleportTo(level, spawn.x, spawn.y, spawn.z, java.util.Set.of(), spawn.yaw, spawn.pitch, true);
+			if (level != null) player.teleportTo(level, spawn.x, spawn.y, spawn.z, java.util.Set.of(), spawn.yaw, spawn.pitch);
 		}
-		if (Daily.canClaim(player)) {
+		if (Feature.DAILY.enabled() && Daily.canClaim(player)) {
 			player.sendSystemMessage(Msg.prefixed(Text.of("&eYour daily reward is ready! ")
 				.append(Msg.button("&a&l[Claim]", "/daily", "&7Open /daily"))));
 		}
 	}
 
 	public static void broadcastJoin(ServerPlayer player, MinecraftServer server, boolean first) {
+		if (!Feature.CHAT_FORMAT.enabled()) return;
 		String template = first ? Config.get().firstJoinFormat : Config.get().joinFormat;
 		Component line = Text.format(template, placeholders(player, Map.of(
 			"count", Component.literal(String.valueOf(DataStore.root().players.size())))));
@@ -123,6 +128,7 @@ public final class Chat {
 	}
 
 	public static void broadcastLeave(ServerPlayer player, MinecraftServer server) {
+		if (!Feature.CHAT_FORMAT.enabled()) return;
 		Component line = Text.format(Config.get().leaveFormat, placeholders(player, Map.of()));
 		server.getPlayerList().broadcastSystemMessage(line, false);
 	}
@@ -146,14 +152,14 @@ public final class Chat {
 
 	private static ClientboundPlayerInfoUpdatePacket tabUpdate(ServerPlayer player) {
 		return new ClientboundPlayerInfoUpdatePacket(java.util.EnumSet.of(
-			ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,
-			ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LIST_ORDER), java.util.List.of(player));
+			ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME), java.util.List.of(player));
 	}
 
 	// ---------------------------------------------------------------- nicknames
 
 	/** The nickname component used by the display-name mixin, or null. */
 	public static Component nick(ServerPlayer player) {
+		if (!Feature.NICKNAMES.enabled()) return null;
 		String nick = DataStore.find(player.getUUID()).map(d -> d.nick).orElse(null);
 		return nick == null ? null : Text.of(nick);
 	}
@@ -165,7 +171,7 @@ public final class Chat {
 			data.nick = null;
 			DataStore.markDirty();
 			refreshTabName(target, target.level().getServer());
-			Msg.ok(actor, self ? "Nickname removed." : "Removed " + target.getGameProfile().name() + "'s nickname.");
+			Msg.ok(actor, self ? "Nickname removed." : "Removed " + target.getGameProfile().getName() + "'s nickname.");
 			return;
 		}
 		if (nick.contains("&") && !Perms.has(actor, Perm.NICK_COLOR)) {
@@ -185,7 +191,7 @@ public final class Chat {
 		}
 		MinecraftServer server = target.level().getServer();
 		for (ServerPlayer other : server.getPlayerList().getPlayers()) {
-			if (other != target && other.getGameProfile().name().equalsIgnoreCase(visible)) {
+			if (other != target && other.getGameProfile().getName().equalsIgnoreCase(visible)) {
 				Msg.err(actor, "That's another player's real name.");
 				return;
 			}
@@ -200,7 +206,7 @@ public final class Chat {
 		data.nick = nick;
 		DataStore.markDirty();
 		refreshTabName(target, server);
-		actor.sendSystemMessage(Msg.prefixed(Text.of(self ? "&aYour nickname is now " : "&a" + target.getGameProfile().name() + " is now ").append(Text.of(data.nick))));
+		actor.sendSystemMessage(Msg.prefixed(Text.of(self ? "&aYour nickname is now " : "&a" + target.getGameProfile().getName() + " is now ").append(Text.of(data.nick))));
 		if (!self) target.sendSystemMessage(Msg.prefixed(Text.of("&aYour nickname was set to ").append(Text.of(data.nick))));
 	}
 

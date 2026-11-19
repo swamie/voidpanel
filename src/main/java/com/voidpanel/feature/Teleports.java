@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.config.Feature;
 import com.voidpanel.config.Config;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.Loc;
@@ -47,7 +48,7 @@ public final class Teleports {
 			Msg.err(player, "You can't teleport while in combat! &7(" + Msg.seconds(Combat.remaining(player)) + " left)");
 			return false;
 		}
-		int ticks = Config.get().teleportWarmupSeconds * 20;
+		int ticks = Feature.TELEPORT_WARMUP.enabled() ? Config.get().teleportWarmupSeconds * 20 : 0;
 		if (ticks <= 0 || player.isCreative() || player.isSpectator()) {
 			Loc loc = destination.get();
 			if (loc != null) teleport(player, loc);
@@ -88,7 +89,7 @@ public final class Teleports {
 			}
 			w.left--;
 			if (w.left % 4 == 0) {
-				ServerLevel level = p.level();
+				ServerLevel level = p.serverLevel();
 				level.sendParticles(ParticleTypes.PORTAL, p.getX(), p.getY() + 1, p.getZ(), 6, 0.4, 0.6, 0.4, 0.2);
 			}
 			if (w.left % 20 == 0 && w.left > 0) {
@@ -115,7 +116,7 @@ public final class Teleports {
 		DataStore.get(player.getUUID()).back = Loc.of(player);
 		DataStore.markDirty();
 		if (player.isPassenger()) player.stopRiding();
-		player.teleportTo(level, loc.x, loc.y, loc.z, Set.of(), loc.yaw, loc.pitch, true);
+		player.teleportTo(level, loc.x, loc.y, loc.z, Set.of(), loc.yaw, loc.pitch);
 		player.fallDistance = 0;
 		Msg.sound(player, SoundEvents.ENDERMAN_TELEPORT, 0.7f, 1.0f);
 		level.sendParticles(ParticleTypes.REVERSE_PORTAL, loc.x, loc.y + 1, loc.z, 30, 0.4, 0.8, 0.4, 0.05);

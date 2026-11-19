@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.config.Config;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.feature.Daily;
@@ -40,7 +41,7 @@ public final class DailyGui extends Gui {
 		int next = Daily.nextIndex(player);
 		boolean editor = Perms.has(player, Perm.DAILY_EDIT);
 
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.purple()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.purple()));
 		int streak = d.lastDailyDay >= Daily.today() - 1 ? d.dailyStreak : 0;
 		set(4, ItemBuilder.of(Items.BLAZE_POWDER).name("&6&lStreak: &f" + streak + " day" + (streak == 1 ? "" : "s")).count(Math.max(1, Math.min(64, streak)))
 			.lore("&7Claim every day to keep it going.", "&7Miss a day and it starts over.").build());
@@ -56,7 +57,7 @@ public final class DailyGui extends Gui {
 			boolean glint = false;
 			boolean claimedToday = !can && day == next;
 			if (claimedToday || (day < next)) {
-				icon = Items.STAINED_GLASS_PANE.lime();
+				icon = DyeItems.STAINED_GLASS_PANE.lime();
 				name = "&a&lDay " + (day + 1) + " &a✔";
 				lore.add("&aClaimed");
 			} else if (day == next && can) {
@@ -83,7 +84,7 @@ public final class DailyGui extends Gui {
 			Duration left = Duration.between(LocalDateTime.now(), LocalDate.now().plusDays(1).atStartOfDay());
 			set(31, ItemBuilder.of(Items.CLOCK).name("&7Next reward in &f" + left.toHours() + "h " + left.toMinutesPart() + "m").build());
 		}
-		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(36, new MainGui(player));
 		closeButton(44);
 	}
@@ -161,7 +162,7 @@ public final class DailyGui extends Gui {
 					refresh();
 				});
 			});
-			for (int i = 18; i < 27; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+			for (int i = 18; i < 27; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 			set(22, ItemBuilder.of(Items.BOOK).name("&e&lHow to edit").lore("&7Click any item in &fyour inventory", "&7to add it (with its stack size).", "&7Click a reward above to remove it.").build());
 			backButton(18, new DailyGui(player));
 		}

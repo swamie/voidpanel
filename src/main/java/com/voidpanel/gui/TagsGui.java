@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Tag;
 import com.voidpanel.feature.ChatPrompts;
@@ -12,7 +13,7 @@ import com.voidpanel.util.Text;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -32,7 +33,7 @@ public final class TagsGui extends Gui {
 			boolean equipped = t.id.equals(data.tag);
 			boolean owned = Tags.owns(player, t);
 			List<String> lore = new ArrayList<>();
-			lore.add("&7Preview: " + t.display + " &f" + player.getGameProfile().name());
+			lore.add("&7Preview: " + t.display + " &f" + player.getGameProfile().getName());
 			lore.add(t.everyone ? "&8Available to everyone" : "&8Unlockable");
 			lore.add("");
 			lore.add(equipped ? "&a✔ Equipped &7(click to remove)" : owned ? "&e▶ Click to equip" : "&c✘ Locked");
@@ -67,7 +68,7 @@ public final class TagsGui extends Gui {
 			});
 		});
 		if (tags.isEmpty()) set(22, ItemBuilder.of(Items.CLOCK).name("&7No tags available yet").build());
-		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 36; i < 45; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(36, new MainGui(player));
 		if (data.tag != null) {
 			set(38, ItemBuilder.of(Items.BUCKET).name("&7Remove my tag").build(), c -> {
@@ -100,7 +101,7 @@ public final class TagsGui extends Gui {
 	}
 
 	private static Item icon(Tag t) {
-		Item i = BuiltInRegistries.ITEM.getValue(Identifier.tryParse(t.icon));
+		Item i = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(t.icon));
 		return i == null || i == Items.AIR ? Items.NAME_TAG : i;
 	}
 }

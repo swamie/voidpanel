@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData.Home;
 import com.voidpanel.feature.Homes;
@@ -56,7 +57,7 @@ public final class IconPickerGui extends Gui {
 		int pages = page(blocks(), 0, PER_PAGE, page, (slot, item) -> set(slot,
 			ItemBuilder.of(item).clean().lore("", "&e▶ Click to use this icon").build(), c -> choose(item)));
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(45, 49, 53, page, pages, p -> {
 			page = p;
 			refresh();
