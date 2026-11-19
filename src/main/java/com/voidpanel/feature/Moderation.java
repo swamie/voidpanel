@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.config.Feature;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.util.Msg;
 import com.voidpanel.util.Text;
@@ -14,10 +15,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.IpBanListEntry;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.server.players.UserBanListEntry;
 import net.minecraft.server.players.UserWhiteListEntry;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 
 public final class Moderation {
 	private static final Pattern IP = Pattern.compile("^(\\d{1,3}\\.){3}\\d{1,3}$|^[0-9a-fA-F:]+:[0-9a-fA-F:]*$");
@@ -39,7 +40,7 @@ public final class Moderation {
 			callback.accept(Optional.of(new NameAndId(known.get().getKey(), known.get().getValue().name)));
 			return;
 		}
-		CompletableFuture.supplyAsync(() -> server.services().nameToIdCache().get(name), Util.ioPool())
+		CompletableFuture.supplyAsync(() -> server.getProfileCache().get(name).map(NameAndId::new), Util.backgroundExecutor())
 			.exceptionally(t -> Optional.empty())
 			.thenAccept(result -> server.execute(() -> callback.accept(result)));
 	}
@@ -52,12 +53,12 @@ public final class Moderation {
 
 	public static void ban(MinecraftServer server, String by, NameAndId target, String reason, Consumer<String> feedback) {
 		var bans = server.getPlayerList().getBans();
-		if (bans.isBanned(target)) {
+		if (bans.isBanned(target.toProfile())) {
 			feedback.accept("&c" + target.name() + " is already banned.");
 			return;
 		}
 		String why = reason == null || reason.isBlank() ? "Banned by an operator." : reason;
-		bans.add(new UserBanListEntry(target, new Date(), by, null, why));
+		bans.add(new UserBanListEntry(target.toProfile(), new Date(), by, null, why));
 		record(target, "ban", why, by, 0);
 		ServerPlayer online = server.getPlayerList().getPlayer(target.id());
 		if (online != null) online.connection.disconnect(kickScreen("&c&lYou have been banned", why, by));
@@ -67,8 +68,8 @@ public final class Moderation {
 
 	public static boolean unban(MinecraftServer server, NameAndId target) {
 		var bans = server.getPlayerList().getBans();
-		if (!bans.isBanned(target)) return false;
-		bans.remove(target);
+		if (!bans.isBanned(target.toProfile())) return false;
+		bans.remove(target.toProfile());
 		DataStore.find(target.id()).ifPresent(d -> d.punishments.stream().filter(p -> p.type.equals("ban") && !p.revoked).findFirst().ifPresent(p -> p.revoked = true));
 		DataStore.markDirty();
 		return true;
@@ -131,18 +132,18 @@ public final class Moderation {
 	// ---------------------------------------------------------------- whitelist
 
 	public static boolean isWhitelisted(MinecraftServer server, NameAndId who) {
-		return server.getPlayerList().getWhiteList().isWhiteListed(who);
+		return server.getPlayerList().getWhiteList().isWhiteListed(who.toProfile());
 	}
 
 	public static void whitelistAdd(MinecraftServer server, NameAndId who) {
-		server.getPlayerList().getWhiteList().add(new UserWhiteListEntry(who));
+		server.getPlayerList().getWhiteList().add(new UserWhiteListEntry(who.toProfile()));
 		DataStore.root().denied.removeIf(d -> d.uuid.equals(who.id().toString()));
 		DataStore.markDirty();
 	}
 
 	public static void whitelistRemove(MinecraftServer server, NameAndId who) {
-		server.getPlayerList().getWhiteList().remove(who);
-		server.kickUnlistedPlayers();
+		server.getPlayerList().getWhiteList().remove(who.toProfile());
+		server.kickUnlistedPlayers(server.createCommandSourceStack());
 	}
 
 	// ---------------------------------------------------------------- punishments
@@ -187,6 +188,7 @@ public final class Moderation {
 	}
 
 	public static boolean isMuted(ServerPlayer player) {
+		if (!Feature.PUNISH.enabled()) return false;
 		var d = DataStore.find(player.getUUID()).orElse(null);
 		if (d == null || d.mutedUntil == 0) return false;
 		if (d.mutedUntil > 0 && d.mutedUntil < System.currentTimeMillis()) {
@@ -231,8 +233,8 @@ public final class Moderation {
 	public static void kick(MinecraftServer server, String by, ServerPlayer target, String reason, Consumer<String> feedback) {
 		record(new NameAndId(target.getGameProfile()), "kick", reason, by, 0);
 		target.connection.disconnect(kickScreen("&6&lYou were kicked", reason, by));
-		broadcastStaff(server, "&6" + target.getGameProfile().name() + " &7was kicked by &f" + by + " &8(" + reason + ")");
-		feedback.accept("&aKicked " + target.getGameProfile().name() + ".");
+		broadcastStaff(server, "&6" + target.getGameProfile().getName() + " &7was kicked by &f" + by + " &8(" + reason + ")");
+		feedback.accept("&aKicked " + target.getGameProfile().getName() + ".");
 	}
 
 	public static void warn(MinecraftServer server, String by, NameAndId target, String reason, Consumer<String> feedback) {
@@ -251,9 +253,9 @@ public final class Moderation {
 	/** Ban with an optional expiry (duration 0 = permanent). */
 	public static void tempban(MinecraftServer server, String by, NameAndId target, long duration, String reason, Consumer<String> feedback) {
 		var bans = server.getPlayerList().getBans();
-		if (bans.isBanned(target)) bans.remove(target);
+		if (bans.isBanned(target.toProfile())) bans.remove(target.toProfile());
 		Date until = duration <= 0 ? null : new Date(System.currentTimeMillis() + duration);
-		bans.add(new UserBanListEntry(target, new Date(), by, until, reason));
+		bans.add(new UserBanListEntry(target.toProfile(), new Date(), by, until, reason));
 		record(target, "ban", reason, by, until == null ? 0 : until.getTime());
 		ServerPlayer online = server.getPlayerList().getPlayer(target.id());
 		String length = duration <= 0 ? "permanently" : "for " + formatDuration(duration);

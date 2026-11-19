@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.feature.ChatPrompts;
 import com.voidpanel.feature.Moderation;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.server.players.UserWhiteListEntry;
 import net.minecraft.world.item.Items;
 
@@ -31,13 +32,13 @@ public final class WhitelistGui extends Gui {
 	@Override
 	protected void build() {
 		MinecraftServer server = player.level().getServer();
-		boolean on = server.isUsingWhitelist();
+		boolean on = server.getPlayerList().isUsingWhitelist();
 
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
-		set(2, ItemBuilder.of(on ? Items.CONCRETE.lime() : Items.CONCRETE.red()).name(on ? "&a&lWhitelist: ON" : "&c&lWhitelist: OFF").lore(
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
+		set(2, ItemBuilder.of(on ? DyeItems.CONCRETE.lime() : DyeItems.CONCRETE.red()).name(on ? "&a&lWhitelist: ON" : "&c&lWhitelist: OFF").lore(
 			on ? "&7Only whitelisted players can join." : "&7Anyone can join right now.", "", "&e▶ Click to turn " + (on ? "off" : "on")).build(), c -> {
-				server.setUsingWhitelist(!on);
-				if (!on) server.kickUnlistedPlayers();
+				server.getPlayerList().setUsingWhiteList(!on);
+				if (!on) server.kickUnlistedPlayers(server.createCommandSourceStack());
 				Msg.ok(player, "Whitelist turned " + (!on ? "on" : "off") + ".");
 				refresh();
 			});
@@ -76,7 +77,7 @@ public final class WhitelistGui extends Gui {
 				}));
 		if (entries.isEmpty()) set(31, ItemBuilder.of(Items.CLOCK).name("&7Nobody here yet").build());
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(45, 49, 53, page, pages, p -> {
 			page = p;
 			refresh();
@@ -89,15 +90,16 @@ public final class WhitelistGui extends Gui {
 		List<Entry> list = new ArrayList<>();
 		List<UUID> seen = new ArrayList<>();
 		for (UserWhiteListEntry entry : server.getPlayerList().getWhiteList().getEntries()) {
-			NameAndId who = entry.getUser();
-			if (who == null) continue;
+			var profile = entry.getUser();
+			if (profile == null) continue;
+			NameAndId who = new NameAndId(profile);
 			boolean online = server.getPlayerList().getPlayer(who.id()) != null;
 			list.add(new Entry(who, true, online ? "&7Status: &aonline" : "&7Status: &8offline"));
 			seen.add(who.id());
 		}
 		for (ServerPlayer p : server.getPlayerList().getPlayers()) {
 			if (seen.contains(p.getUUID())) continue;
-			list.add(new Entry(new NameAndId(p.getGameProfile()), false, "&7Online now" + (server.getPlayerList().isOp(new NameAndId(p.getGameProfile())) ? " &8(op bypass)" : "")));
+			list.add(new Entry(new NameAndId(p.getGameProfile()), false, "&7Online now" + (server.getPlayerList().isOp(p.getGameProfile()) ? " &8(op bypass)" : "")));
 			seen.add(p.getUUID());
 		}
 		for (var d : DataStore.root().denied) {

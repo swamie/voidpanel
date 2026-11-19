@@ -5,7 +5,7 @@ import com.voidpanel.data.DataStore.Warp;
 import com.voidpanel.data.Loc;
 import com.voidpanel.util.Msg;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -28,7 +28,7 @@ public final class Warps {
 		if (w == null) {
 			w = new Warp();
 			w.name = name;
-			w.createdBy = player.getGameProfile().name();
+			w.createdBy = player.getGameProfile().getName();
 			DataStore.root().warps.put(name.toLowerCase(), w);
 		}
 		w.loc = Loc.of(player);
@@ -47,7 +47,7 @@ public final class Warps {
 	}
 
 	public static Item icon(Warp w) {
-		Item item = BuiltInRegistries.ITEM.getValue(Identifier.tryParse(w.icon));
+		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(w.icon));
 		return item == null || item == Items.AIR ? Items.ENDER_PEARL : item;
 	}
 }

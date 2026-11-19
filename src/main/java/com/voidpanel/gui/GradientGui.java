@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.feature.ChatPrompts;
 import com.voidpanel.perm.Perm;
@@ -33,22 +34,22 @@ public final class GradientGui extends Gui {
 	private static final Map<Item, Integer> PALETTE = new LinkedHashMap<>();
 
 	static {
-		PALETTE.put(Items.WOOL.white(), 0xFFFFFF);
-		PALETTE.put(Items.WOOL.lightGray(), 0xC8C8C8);
-		PALETTE.put(Items.WOOL.gray(), 0x7A7A7A);
-		PALETTE.put(Items.WOOL.black(), 0x2B2B2B);
-		PALETTE.put(Items.WOOL.brown(), 0x8B5A2B);
-		PALETTE.put(Items.WOOL.red(), 0xFF3B30);
-		PALETTE.put(Items.WOOL.orange(), 0xFF8C1A);
-		PALETTE.put(Items.WOOL.yellow(), 0xFFE135);
-		PALETTE.put(Items.WOOL.lime(), 0x7CFC00);
-		PALETTE.put(Items.WOOL.green(), 0x2E8B3A);
-		PALETTE.put(Items.WOOL.cyan(), 0x17C3B2);
-		PALETTE.put(Items.WOOL.lightBlue(), 0x5AC8FA);
-		PALETTE.put(Items.WOOL.blue(), 0x3D5AFE);
-		PALETTE.put(Items.WOOL.purple(), 0x9B4DFF);
-		PALETTE.put(Items.WOOL.magenta(), 0xE040FB);
-		PALETTE.put(Items.WOOL.pink(), 0xFF8FC8);
+		PALETTE.put(DyeItems.WOOL.white(), 0xFFFFFF);
+		PALETTE.put(DyeItems.WOOL.lightGray(), 0xC8C8C8);
+		PALETTE.put(DyeItems.WOOL.gray(), 0x7A7A7A);
+		PALETTE.put(DyeItems.WOOL.black(), 0x2B2B2B);
+		PALETTE.put(DyeItems.WOOL.brown(), 0x8B5A2B);
+		PALETTE.put(DyeItems.WOOL.red(), 0xFF3B30);
+		PALETTE.put(DyeItems.WOOL.orange(), 0xFF8C1A);
+		PALETTE.put(DyeItems.WOOL.yellow(), 0xFFE135);
+		PALETTE.put(DyeItems.WOOL.lime(), 0x7CFC00);
+		PALETTE.put(DyeItems.WOOL.green(), 0x2E8B3A);
+		PALETTE.put(DyeItems.WOOL.cyan(), 0x17C3B2);
+		PALETTE.put(DyeItems.WOOL.lightBlue(), 0x5AC8FA);
+		PALETTE.put(DyeItems.WOOL.blue(), 0x3D5AFE);
+		PALETTE.put(DyeItems.WOOL.purple(), 0x9B4DFF);
+		PALETTE.put(DyeItems.WOOL.magenta(), 0xE040FB);
+		PALETTE.put(DyeItems.WOOL.pink(), 0xFF8FC8);
 		PALETTE.put(Items.GOLD_BLOCK, 0xFFD700);
 		PALETTE.put(Items.DIAMOND_BLOCK, 0x4EE2EC);
 		PALETTE.put(Items.EMERALD_BLOCK, 0x17DD62);
@@ -71,18 +72,18 @@ public final class GradientGui extends Gui {
 	public GradientGui(ServerPlayer player) {
 		super(player, 6, "&5&l✦ &8Gradient Maker");
 		String nick = DataStore.get(player.getUUID()).nick;
-		this.text = nick != null ? Text.strip(nick) : player.getGameProfile().name();
+		this.text = nick != null ? Text.strip(nick) : player.getGameProfile().getName();
 	}
 
 	@Override
 	protected void build() {
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		set(4, ItemBuilder.of(Items.NAME_TAG).name(stops.isEmpty() ? Text.of("&f" + text) : Text.of(gradient()))
 			.lore("&7Preview of your gradient.", "", "&8Stops: " + stops.size() + "/" + MAX_STOPS).glint(!stops.isEmpty()).build());
 
 		// Row 1: colour stops, left to right.
-		set(9, ItemBuilder.filler(Items.STAINED_GLASS_PANE.gray()));
-		set(17, ItemBuilder.filler(Items.STAINED_GLASS_PANE.gray()));
+		set(9, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.gray()));
+		set(17, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.gray()));
 		for (int i = 0; i < MAX_STOPS; i++) {
 			int slot = FIRST_STOP + i;
 			if (i < stops.size()) {
@@ -95,7 +96,7 @@ public final class GradientGui extends Gui {
 						refresh();
 					});
 			} else {
-				set(slot, ItemBuilder.of(Items.STAINED_GLASS_PANE.lightGray()).name("&7Empty stop " + (i + 1))
+				set(slot, ItemBuilder.of(DyeItems.STAINED_GLASS_PANE.lightGray()).name("&7Empty stop " + (i + 1))
 					.lore("&7Click a block below, or any", "&7block in your inventory.").build());
 			}
 		}
@@ -110,7 +111,7 @@ public final class GradientGui extends Gui {
 		}
 
 		// Row 5: controls.
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new MainGui(player));
 		set(46, ItemBuilder.of(Items.WRITABLE_BOOK).name("&e&lText: &f" + text).lore("&7The text to colour.", "", "&e▶ Click to change").build(), c ->
 			ChatPrompts.ask(player, "Type the text for your gradient &8(letters, numbers, _ and spaces)&7:", text, input -> {
@@ -129,7 +130,7 @@ public final class GradientGui extends Gui {
 			Msg.click(player);
 			refresh();
 		});
-		set(49, ItemBuilder.of(stops.isEmpty() ? Items.DYE.gray() : Items.EMERALD).name(stops.isEmpty() ? "&7Add colours first" : "&a&l✔ Generate")
+		set(49, ItemBuilder.of(stops.isEmpty() ? DyeItems.DYE.gray() : Items.EMERALD).name(stops.isEmpty() ? "&7Add colours first" : "&a&l✔ Generate")
 			.lore("&7Sends the code to your chat with", "&7a &e[Copy] &7button" + (Perms.has(player, Perm.NICK_COLOR) ? " and &a[Use as nick]&7." : "."))
 			.glint(!stops.isEmpty()).build(), c -> {
 				if (stops.isEmpty()) {
@@ -176,8 +177,8 @@ public final class GradientGui extends Gui {
 		player.sendSystemMessage(Msg.prefixed(Text.of("&7Your gradient: ").append(Text.of(code))));
 		MutableComponent buttons = Msg.prefixed(Component.empty());
 		buttons.append(Text.of("&e&l[Copy]").withStyle(s -> s
-			.withClickEvent(new ClickEvent.CopyToClipboard(code))
-			.withHoverEvent(new HoverEvent.ShowText(Text.of("&7Copy the code to your clipboard:\n&f" + code)))));
+			.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, code))
+			.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("&7Copy the code to your clipboard:\n&f" + code)))));
 		if (Perms.has(player, Perm.NICK) && Perms.has(player, Perm.NICK_COLOR) && !text.contains(" ")) {
 			buttons.append(Component.literal("  "));
 			buttons.append(Msg.button("&a&l[Use as nick]", "/nick " + code, "&7Set this as your nickname"));

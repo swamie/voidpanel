@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData.Punishment;
 import com.voidpanel.feature.Moderation;
@@ -11,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -48,8 +49,8 @@ public final class HistoryGui extends Gui {
 				refresh();
 			});
 		});
-		if (list.isEmpty()) set(22, ItemBuilder.of(Items.DYE.lime()).name("&aClean record").build());
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		if (list.isEmpty()) set(22, ItemBuilder.of(DyeItems.DYE.lime()).name("&aClean record").build());
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new PunishGui(player, target));
 		closeButton(49);
 	}
@@ -59,7 +60,7 @@ public final class HistoryGui extends Gui {
 		if (p.until != 0 && p.until < System.currentTimeMillis()) return false;
 		return switch (p.type) {
 			case "mute" -> DataStore.get(target.id()).mutedUntil != 0;
-			case "ban" -> server.getPlayerList().getBans().isBanned(target);
+			case "ban" -> server.getPlayerList().getBans().isBanned(target.toProfile());
 			default -> false;
 		};
 	}

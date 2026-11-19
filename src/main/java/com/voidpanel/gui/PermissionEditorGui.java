@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.config.Config;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Items;
 
@@ -53,13 +54,13 @@ public final class PermissionEditorGui extends Gui {
 			});
 		}
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new PermissionsGui(player));
 		ItemBuilder head = online != null ? ItemBuilder.head(online) : ItemBuilder.head(target.id(), target.name());
 		set(46, head.name("&d&l" + target.name()).lore(
 			online != null ? "&a● Online" : "&8● Offline",
 			"&7Rank: " + Ranks.of(target.id()).display,
-			"&7Admin (op 3+): " + (server.getProfilePermissions(target).hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_ADMIN) ? "&ayes" : "&7no"),
+			"&7Admin (op 3+): " + (server.getProfilePermissions(target.toProfile()) >= 3 ? "&ayes" : "&7no"),
 			"",
 			"&7Order: &fplayer rule &7> &frank &7> &fdefault rank",
 			"&7> &fbuilt-in default").build());
@@ -71,7 +72,7 @@ public final class PermissionEditorGui extends Gui {
 
 		int limit = Perms.homeLimit(target.id());
 		boolean customLimit = data.homeLimit != null;
-		set(49, ItemBuilder.of(Items.BED.red()).name("&d&lHome limit: &f" + limit).count(Math.max(1, Math.min(64, limit))).lore(
+		set(49, ItemBuilder.of(DyeItems.BED.red()).name("&d&lHome limit: &f" + limit).count(Math.max(1, Math.min(64, limit))).lore(
 			customLimit ? "&7Custom value &8(default " + Config.get().defaultHomeLimit + ")" : "&8From rank / default",
 			"",
 			"&eLeft-click &7+1",

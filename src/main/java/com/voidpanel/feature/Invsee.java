@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.VoidPanel;
 import com.voidpanel.util.ItemBuilder;
 import com.voidpanel.util.Msg;
@@ -11,30 +12,27 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.util.Util;
+import com.voidpanel.util.NameAndId;
+import net.minecraft.Util;
 import net.minecraft.world.Container;
-import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 
 /**
  * /invsee and /endersee. Online players are edited live. Offline players are loaded from
@@ -64,17 +62,10 @@ public final class Invsee {
 			return;
 		}
 		SimpleContainer inv = new SimpleContainer(41);
-		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
-			ValueInput in = TagValueInput.create(reporter, server.registryAccess(), tag);
-			for (ItemStackWithSlot s : in.listOrEmpty("Inventory", ItemStackWithSlot.CODEC)) {
-				if (s.slot() >= 0 && s.slot() < 36) inv.setItem(s.slot(), s.stack());
-			}
-			EntityEquipment eq = in.read("equipment", EntityEquipment.CODEC).orElseGet(EntityEquipment::new);
-			inv.setItem(36, eq.get(EquipmentSlot.FEET));
-			inv.setItem(37, eq.get(EquipmentSlot.LEGS));
-			inv.setItem(38, eq.get(EquipmentSlot.CHEST));
-			inv.setItem(39, eq.get(EquipmentSlot.HEAD));
-			inv.setItem(40, eq.get(EquipmentSlot.OFFHAND));
+		for (var e : readList(server, tag, "Inventory").entrySet()) {
+			int slot = e.getKey();
+			int idx = slot >= 0 && slot < 36 ? slot : slot == 100 ? 36 : slot == 101 ? 37 : slot == 102 ? 38 : slot == 103 ? 39 : slot == -106 ? 40 : -1;
+			if (idx >= 0) inv.setItem(idx, e.getValue());
 		}
 		Msg.info(viewer, "&7Editing &f" + target.name() + "&7's saved inventory (offline). Changes save when you close it.");
 		open(viewer, new InvView(inv), "&8Inventory: &0" + target.name() + " &8(offline)", () -> {
@@ -100,20 +91,14 @@ public final class Invsee {
 			return;
 		}
 		SimpleContainer ender = new SimpleContainer(27);
-		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
-			ValueInput in = TagValueInput.create(reporter, server.registryAccess(), tag);
-			for (ItemStackWithSlot s : in.listOrEmpty("EnderItems", ItemStackWithSlot.CODEC)) {
-				if (s.slot() >= 0 && s.slot() < 27) ender.setItem(s.slot(), s.stack());
-			}
+		for (var e : readList(server, tag, "EnderItems").entrySet()) {
+			if (e.getKey() >= 0 && e.getKey() < 27) ender.setItem(e.getKey(), e.getValue());
 		}
 		Runnable onClose = () -> {
 			OFFLINE_SESSIONS.remove(target.id());
-			try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
-				TagValueOutput out = TagValueOutput.createWithContext(reporter, server.registryAccess());
-				var list = out.list("EnderItems", ItemStackWithSlot.CODEC);
-				for (int i = 0; i < 27; i++) if (!ender.getItem(i).isEmpty()) list.add(new ItemStackWithSlot(i, ender.getItem(i)));
-				putList(tag, "EnderItems", out.buildResult());
-			}
+			var list = new ListTag();
+			for (int i = 0; i < 27; i++) writeStack(server, list, i, ender.getItem(i));
+			tag.put("EnderItems", list);
 			write(server, target, tag);
 			Msg.ok(viewer, "Saved " + target.name() + "'s ender chest.");
 		};
@@ -160,9 +145,9 @@ public final class Invsee {
 		}
 
 		@Override
-		public void clicked(int slot, int button, ContainerInput input, Player player) {
+		public void clicked(int slot, int button, ClickType input, Player player) {
 			if (slot >= 0 && slot < 54 && InvView.map(slot) < 0) return; // decoration slots
-			if (input == ContainerInput.QUICK_CRAFT || input == ContainerInput.PICKUP_ALL) return; // keep it simple and safe
+			if (input == ClickType.QUICK_CRAFT || input == ClickType.PICKUP_ALL) return; // keep it simple and safe
 			super.clicked(slot, button, input, player);
 		}
 
@@ -199,7 +184,7 @@ public final class Invsee {
 	/** Maps the 54 chest slots onto a 41-slot player inventory. */
 	private static final class InvView implements Container {
 		private final Container inv;
-		private final ItemStack filler = ItemBuilder.filler(Items.STAINED_GLASS_PANE.black());
+		private final ItemStack filler = ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black());
 
 		InvView(Container inv) {
 			this.inv = inv;
@@ -276,35 +261,45 @@ public final class Invsee {
 	// ---------------------------------------------------------------- offline IO
 
 	private static CompoundTag load(MinecraftServer server, NameAndId target) {
-		Optional<CompoundTag> tag = server.getPlayerList().loadPlayerData(target);
-		return tag.orElse(null);
+		Path file = server.getWorldPath(LevelResource.PLAYER_DATA_DIR).resolve(target.id() + ".dat");
+		if (!Files.exists(file)) return null;
+		try {
+			return NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap());
+		} catch (Exception e) {
+			VoidPanel.LOGGER.error("Couldn't read offline data for {}", target.name(), e);
+			return null;
+		}
+	}
+
+	private static Map<Integer, ItemStack> readList(MinecraftServer server, CompoundTag tag, String key) {
+		Map<Integer, ItemStack> out = new HashMap<>();
+		ListTag list = tag.getList(key, Tag.TAG_COMPOUND);
+		for (int i = 0; i < list.size(); i++) {
+			CompoundTag c = list.getCompound(i);
+			ItemStack.parse(server.registryAccess(), c).ifPresent(st -> out.put((int) c.getByte("Slot"), st));
+		}
+		return out;
+	}
+
+	private static void writeStack(MinecraftServer server, ListTag list, int slot, ItemStack stack) {
+		if (stack.isEmpty()) return;
+		Tag saved = stack.save(server.registryAccess(), new CompoundTag());
+		if (saved instanceof CompoundTag c) {
+			c.putByte("Slot", (byte) slot);
+			list.add(c);
+		}
 	}
 
 	private static void saveInventory(MinecraftServer server, NameAndId target, CompoundTag tag, SimpleContainer inv) {
-		try (var reporter = new ProblemReporter.ScopedCollector(VoidPanel.LOGGER)) {
-			ValueInput in = TagValueInput.create(reporter, server.registryAccess(), tag);
-			EntityEquipment eq = in.read("equipment", EntityEquipment.CODEC).orElseGet(EntityEquipment::new);
-			eq.set(EquipmentSlot.FEET, inv.getItem(36));
-			eq.set(EquipmentSlot.LEGS, inv.getItem(37));
-			eq.set(EquipmentSlot.CHEST, inv.getItem(38));
-			eq.set(EquipmentSlot.HEAD, inv.getItem(39));
-			eq.set(EquipmentSlot.OFFHAND, inv.getItem(40));
-
-			TagValueOutput out = TagValueOutput.createWithContext(reporter, server.registryAccess());
-			var list = out.list("Inventory", ItemStackWithSlot.CODEC);
-			for (int i = 0; i < 36; i++) if (!inv.getItem(i).isEmpty()) list.add(new ItemStackWithSlot(i, inv.getItem(i)));
-			out.store("equipment", EntityEquipment.CODEC, eq);
-			CompoundTag result = out.buildResult();
-			putList(tag, "Inventory", result);
-			if (result.contains("equipment")) tag.put("equipment", result.get("equipment"));
-			else tag.remove("equipment");
-		}
+		ListTag list = new ListTag();
+		for (int i = 0; i < 36; i++) writeStack(server, list, i, inv.getItem(i));
+		writeStack(server, list, 100, inv.getItem(36));
+		writeStack(server, list, 101, inv.getItem(37));
+		writeStack(server, list, 102, inv.getItem(38));
+		writeStack(server, list, 103, inv.getItem(39));
+		writeStack(server, list, -106, inv.getItem(40));
+		tag.put("Inventory", list);
 		write(server, target, tag);
-	}
-
-	private static void putList(CompoundTag tag, String key, CompoundTag result) {
-		var value = result.get(key);
-		tag.put(key, value != null ? value : new net.minecraft.nbt.ListTag());
 	}
 
 	private static void write(MinecraftServer server, NameAndId target, CompoundTag tag) {

@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Rank;
 import com.voidpanel.feature.Ranks;
@@ -61,15 +62,15 @@ public final class RankPermsGui extends Gui {
 			});
 		}
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new RankEditorGui(player, rank));
-		set(47, ItemBuilder.of(Items.CONCRETE.lime()).name("&a&lAllow all in " + cat.title).build(), c -> {
+		set(47, ItemBuilder.of(DyeItems.CONCRETE.lime()).name("&a&lAllow all in " + cat.title).build(), c -> {
 			for (Perm p : cat.perms()) rank.perms.put(p.node, true);
 			DataStore.markDirty();
 			refreshMembers();
 			refresh();
 		});
-		set(48, ItemBuilder.of(Items.CONCRETE.gray()).name("&7&lInherit all in " + cat.title).build(), c -> {
+		set(48, ItemBuilder.of(DyeItems.CONCRETE.gray()).name("&7&lInherit all in " + cat.title).build(), c -> {
 			for (Perm p : cat.perms()) rank.perms.remove(p.node);
 			DataStore.markDirty();
 			refreshMembers();
@@ -86,7 +87,7 @@ public final class RankPermsGui extends Gui {
 
 	/** Shared row-0 category tabs used by both permission editors. */
 	static void categoryTabs(Gui gui, Perm.Cat current, java.util.function.Consumer<Perm.Cat> pick) {
-		for (int i = 0; i < 9; i++) gui.set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) gui.set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		Perm.Cat[] cats = Perm.Cat.values();
 		for (int i = 0; i < cats.length; i++) {
 			Perm.Cat c = cats[i];

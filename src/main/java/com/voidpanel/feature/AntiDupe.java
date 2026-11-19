@@ -26,7 +26,7 @@ public final class AntiDupe {
 		for (int i = 0; i < inv.getContainerSize(); i++) {
 			if (ItemBuilder.isGuiItem(inv.getItem(i))) {
 				inv.setItem(i, ItemStack.EMPTY);
-				VoidPanel.LOGGER.warn("Removed a GUI item from {}'s inventory (slot {})", player.getGameProfile().name(), i);
+				VoidPanel.LOGGER.warn("Removed a GUI item from {}'s inventory (slot {})", player.getGameProfile().getName(), i);
 			}
 		}
 		if (ItemBuilder.isGuiItem(player.containerMenu.getCarried())) player.containerMenu.setCarried(ItemStack.EMPTY);

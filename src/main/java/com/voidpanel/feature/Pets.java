@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.config.Feature;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.Loc;
 import com.voidpanel.data.PlayerData;
@@ -30,10 +31,11 @@ public final class Pets {
 
 	/** Tamed animals only (wolves, cats, parrots, horses, llamas...), not vexes. */
 	public static UUID ownerOf(Entity e) {
+		if (!Feature.PETS.enabled()) return null;
 		if (!(e instanceof Animal) || !(e instanceof OwnableEntity pet)) return null;
 		if (e instanceof TamableAnimal t && !t.isTame()) return null;
-		var ref = pet.getOwnerReference();
-		return ref == null ? null : ref.getUUID();
+		var ref = pet.getOwnerUUID();
+		return ref;
 	}
 
 	public static void record(Entity e) {
@@ -43,7 +45,7 @@ public final class Pets {
 		Pet pet = data.pets.computeIfAbsent(e.getStringUUID(), k -> new Pet());
 		pet.type = BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).toString();
 		pet.name = e.hasCustomName() ? e.getCustomName().getString() : null;
-		pet.loc = new Loc(level.dimension().identifier().toString(), e.getX(), e.getY(), e.getZ(), e.getYRot(), e.getXRot());
+		pet.loc = new Loc(level.dimension().location().toString(), e.getX(), e.getY(), e.getZ(), e.getYRot(), e.getXRot());
 		pet.seen = System.currentTimeMillis();
 		DataStore.markDirty();
 	}
@@ -97,7 +99,7 @@ public final class Pets {
 			return;
 		}
 		ChunkPos chunk = new ChunkPos((int) Math.floor(pet.loc.x) >> 4, (int) Math.floor(pet.loc.z) >> 4);
-		level.getChunkSource().addTicketWithRadius(TicketType.PORTAL, chunk, 2);
+		level.getChunkSource().addRegionTicket(TicketType.PORTAL, chunk, 2, chunk.getWorldPosition());
 		Msg.actionBar(to, "&7Fetching &f" + label(pet) + " &7from " + pet.loc.coords() + "...");
 		poll(to, petId, level, 0, done);
 	}
@@ -123,9 +125,9 @@ public final class Pets {
 			t.setOrderedToSit(false);
 			t.setInSittingPose(false);
 		}
-		boolean ok = pet.teleportTo(to.level(), to.getX(), to.getY(), to.getZ(), Set.of(), pet.getYRot(), pet.getXRot(), false);
+		boolean ok = pet.teleportTo(to.serverLevel(), to.getX(), to.getY(), to.getZ(), Set.of(), pet.getYRot(), pet.getXRot());
 		if (ok) {
-			Entity moved = to.level().getEntity(pet.getUUID());
+			Entity moved = to.serverLevel().getEntity(pet.getUUID());
 			if (moved != null) record(moved);
 			Msg.sound(to, SoundEvents.ENDERMAN_TELEPORT, 0.5f, 1.4f);
 		}

@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.PlayerData;
 import com.voidpanel.feature.Stats;
@@ -13,7 +14,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -47,7 +48,7 @@ public final class TopGui extends Gui {
 
 	@Override
 	protected void build() {
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		Board[] boards = Board.values();
 		for (int i = 0; i < boards.length; i++) {
 			Board b = boards[i];
@@ -72,7 +73,7 @@ public final class TopGui extends Gui {
 				.lore("&7" + board.title + ": &e" + board.format.apply(board.value.applyAsLong(d)), "", "&e▶ Click for profile").build(),
 				c -> new ProfileGui(player, new NameAndId(id, d.name)).open());
 		}
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(45, new MainGui(player));
 		closeButton(49);
 	}

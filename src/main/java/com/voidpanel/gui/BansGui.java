@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.feature.Moderation;
 import com.voidpanel.perm.Perm;
 import com.voidpanel.perm.Perms;
@@ -11,7 +12,7 @@ import java.util.Locale;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.IpBanListEntry;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.server.players.UserBanListEntry;
 import net.minecraft.world.item.Items;
 
@@ -29,7 +30,7 @@ public final class BansGui extends Gui {
 	@Override
 	protected void build() {
 		MinecraftServer server = player.level().getServer();
-		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 0; i < 9; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		if (Perms.has(player, Perm.BAN)) {
 			set(3, ItemBuilder.of(Items.IRON_BARS).name((ips ? "&7" : "&c&l") + "Banned players").glint(!ips).lore(ips ? "&e▶ Click to view" : "&8Viewing").build(), c -> {
 				if (ips) new BansGui(player, false).open();
@@ -63,8 +64,9 @@ public final class BansGui extends Gui {
 		} else {
 			List<UserBanListEntry> list = Moderation.bans(server);
 			pages = page(list, 9, 36, page, (slot, e) -> {
-				NameAndId who = e.getUser();
-				if (who == null) return;
+				var profile = e.getUser();
+				if (profile == null) return;
+				NameAndId who = new NameAndId(profile);
 				set(slot, ItemBuilder.head(who.id(), who.name()).name("&c" + who.name()).lore(
 					"&7Reason: &f" + e.getReason(),
 					"&7By: &f" + e.getSource(),
@@ -81,7 +83,7 @@ public final class BansGui extends Gui {
 			if (list.isEmpty()) set(31, ItemBuilder.of(Items.CLOCK).name("&7Nobody is banned").lore("&8/ban <player> [reason]").build());
 		}
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(45, 49, 53, page, pages, p -> {
 			page = p;
 			refresh();

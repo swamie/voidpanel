@@ -1,5 +1,6 @@
 package com.voidpanel.feature;
 
+import com.voidpanel.config.Feature;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.mixin.ChunkMapAccessor;
 import com.voidpanel.mixin.TrackedEntityInvoker;
@@ -18,6 +19,7 @@ public final class Vanish {
 	private Vanish() {}
 
 	public static boolean isVanished(ServerPlayer player) {
+		if (!Feature.VANISH.enabled()) return false;
 		return DataStore.find(player.getUUID()).map(d -> d.vanished).orElse(false);
 	}
 
@@ -51,7 +53,7 @@ public final class Vanish {
 			}
 		}
 		Chat.refreshTabName(player, server);
-		ServerLevel level = player.level();
+		ServerLevel level = player.serverLevel();
 		Object tracked = ((ChunkMapAccessor) level.getChunkSource().chunkMap).voidpanel$entityMap().get(player.getId());
 		if (tracked != null) ((TrackedEntityInvoker) tracked).voidpanel$updatePlayers(level.players());
 	}

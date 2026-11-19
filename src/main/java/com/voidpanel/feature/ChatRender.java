@@ -63,11 +63,11 @@ public final class ChatRender {
 
 	private static List<String> mentionNames(ServerPlayer viewer) {
 		List<String> names = new ArrayList<>();
-		names.add(viewer.getGameProfile().name());
+		names.add(viewer.getGameProfile().getName());
 		String nick = DataStore.find(viewer.getUUID()).map(d -> d.nick).orElse(null);
 		if (nick != null) {
 			String plain = Text.strip(nick);
-			if (plain.length() >= 3 && !plain.equalsIgnoreCase(viewer.getGameProfile().name())) names.add(plain);
+			if (plain.length() >= 3 && !plain.equalsIgnoreCase(viewer.getGameProfile().getName())) names.add(plain);
 		}
 		return names;
 	}

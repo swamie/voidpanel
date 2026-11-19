@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore.Grave;
 import com.voidpanel.data.Loc;
 import com.voidpanel.feature.Graves;
@@ -36,12 +37,12 @@ public final class GravesGui extends Gui {
 				});
 		});
 		if (graves.isEmpty()) set(13, ItemBuilder.of(Items.TOTEM_OF_UNDYING).name("&aNo graves").lore("&7You haven't died with items", "&7since graves were turned on.").build());
-		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 27; i < 36; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		backButton(27, new MainGui(player));
 
 		boolean serverOn = com.voidpanel.config.Config.get().gravesEnabled;
 		boolean mineOn = !com.voidpanel.data.DataStore.get(player.getUUID()).gravesOff;
-		set(30, ItemBuilder.of(mineOn ? Items.CONCRETE.lime() : Items.CONCRETE.red()).name(mineOn ? "&a&lMy graves: ON" : "&c&lMy graves: OFF").lore(
+		set(30, ItemBuilder.of(mineOn ? DyeItems.CONCRETE.lime() : DyeItems.CONCRETE.red()).name(mineOn ? "&a&lMy graves: ON" : "&c&lMy graves: OFF").lore(
 			mineOn ? "&7Your items go into a grave" : "&7Your items drop on the ground",
 			mineOn ? "&7when you die." : "&7like normal when you die.",
 			serverOn ? "" : "&c(Graves are off for the whole server)",

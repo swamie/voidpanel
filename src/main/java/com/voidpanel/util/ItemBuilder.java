@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.util.Unit;
 
 /** Fluent helper for GUI items. Names and lore are never italic. */
 public final class ItemBuilder {
@@ -37,7 +37,7 @@ public final class ItemBuilder {
 	/** An unnamed glass pane used to fill empty slots. */
 	public static ItemStack filler(Item pane) {
 		ItemStack s = new ItemStack(pane);
-		s.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, TooltipDisplay.DEFAULT.hiddenComponents()));
+		s.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE);
 		return mark(s);
 	}
 
@@ -47,13 +47,13 @@ public final class ItemBuilder {
 
 	public static ItemBuilder head(GameProfile profile) {
 		ItemBuilder b = of(Items.PLAYER_HEAD);
-		b.stack.set(DataComponents.PROFILE, ResolvableProfile.createResolved(profile));
+		b.stack.set(DataComponents.PROFILE, new ResolvableProfile(profile));
 		return b;
 	}
 
 	public static ItemBuilder head(UUID id, String name) {
 		ItemBuilder b = of(Items.PLAYER_HEAD);
-		b.stack.set(DataComponents.PROFILE, name != null ? ResolvableProfile.createUnresolved(name) : ResolvableProfile.createUnresolved(id));
+		b.stack.set(DataComponents.PROFILE, new ResolvableProfile(java.util.Optional.ofNullable(name), java.util.Optional.ofNullable(id), new com.mojang.authlib.properties.PropertyMap()));
 		return b;
 	}
 
@@ -93,14 +93,7 @@ public final class ItemBuilder {
 
 	/** Hide the vanilla extra tooltip lines (attributes, enchantments, etc). */
 	public ItemBuilder clean() {
-		TooltipDisplay display = TooltipDisplay.DEFAULT
-			.withHidden(DataComponents.ATTRIBUTE_MODIFIERS, true)
-			.withHidden(DataComponents.ENCHANTMENTS, true)
-			.withHidden(DataComponents.STORED_ENCHANTMENTS, true)
-			.withHidden(DataComponents.POTION_CONTENTS, true)
-			.withHidden(DataComponents.DYED_COLOR, true)
-			.withHidden(DataComponents.PROFILE, true);
-		stack.set(DataComponents.TOOLTIP_DISPLAY, display);
+		stack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
 		return this;
 	}
 
@@ -122,7 +115,7 @@ public final class ItemBuilder {
 
 	public static boolean isGuiItem(ItemStack stack) {
 		CustomData data = stack.get(DataComponents.CUSTOM_DATA);
-		return data != null && data.copyTag().getBooleanOr(MARKER, false);
+		return data != null && data.copyTag().getBoolean(MARKER);
 	}
 
 	private static MutableComponent noItalic(Component c) {

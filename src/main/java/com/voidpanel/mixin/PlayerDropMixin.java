@@ -4,7 +4,7 @@ import com.voidpanel.feature.Graves;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,8 +18,8 @@ public abstract class PlayerDropMixin {
 	protected abstract void destroyVanishingCursedItems();
 
 	@Inject(method = "dropEquipment", at = @At("HEAD"))
-	private void voidpanel$grave(ServerLevel level, CallbackInfo ci) {
-		if ((Object) this instanceof ServerPlayer player && !level.getGameRules().get(GameRules.KEEP_INVENTORY)) {
+	private void voidpanel$grave(CallbackInfo ci) {
+		if ((Object) this instanceof ServerPlayer player && !player.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
 			this.destroyVanishingCursedItems();
 			Graves.onDeath(player);
 		}

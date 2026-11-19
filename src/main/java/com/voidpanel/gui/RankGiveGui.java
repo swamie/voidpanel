@@ -1,5 +1,6 @@
 package com.voidpanel.gui;
 
+import com.voidpanel.util.DyeItems;
 import com.voidpanel.data.DataStore;
 import com.voidpanel.data.DataStore.Rank;
 import com.voidpanel.feature.ChatPrompts;
@@ -14,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
+import com.voidpanel.util.NameAndId;
 import net.minecraft.world.item.Items;
 
 /** Click a player's head to give them a rank (then pick how long). */
@@ -37,7 +38,7 @@ public final class RankGiveGui extends Gui {
 		List<UUID> online = new ArrayList<>();
 		server.getPlayerList().getPlayers().stream()
 			.filter(p -> Vanish.canSee(player, p))
-			.sorted(Comparator.comparing(p -> p.getGameProfile().name()))
+			.sorted(Comparator.comparing(p -> p.getGameProfile().getName()))
 			.forEach(p -> {
 				people.add(new NameAndId(p.getGameProfile()));
 				online.add(p.getUUID());
@@ -64,7 +65,7 @@ public final class RankGiveGui extends Gui {
 		});
 		if (people.isEmpty()) set(22, ItemBuilder.of(Items.CLOCK).name("&7Nobody to show").build());
 
-		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(Items.STAINED_GLASS_PANE.black()));
+		for (int i = 45; i < 54; i++) set(i, ItemBuilder.filler(DyeItems.STAINED_GLASS_PANE.black()));
 		pageButtons(45, -1, 53, page, pages, p -> {
 			page = p;
 			refresh();

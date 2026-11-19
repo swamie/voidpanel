@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -65,7 +65,7 @@ public final class Daily {
 	/** "minecraft:diamond 3" -> 3 diamonds. */
 	public static ItemStack parse(String entry) {
 		String[] parts = entry.trim().split("\\s+");
-		Item item = BuiltInRegistries.ITEM.getValue(Identifier.tryParse(parts[0]));
+		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(parts[0]));
 		if (item == null || item == Items.AIR) return ItemStack.EMPTY;
 		int count = 1;
 		if (parts.length > 1) {
